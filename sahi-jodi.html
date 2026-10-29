@@ -1,0 +1,1920 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>Sahi Jodi</title>
+<meta name="description" content="A short floor game. Flip two cards to match each shopper to the right move. Two trap cards never pair.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- fonts load without blocking: if Google Fonts hangs, the game still starts with system fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700&family=Poppins:wght@500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700&family=Poppins:wght@500;600;700&display=swap"></noscript>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#5B4BDB;overscroll-behavior:none;touch-action:none;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:Figtree,Poppins,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#0F0A6C}
+#app{position:fixed;left:0;top:0;right:0;bottom:0;overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 0%,#6F60EA 0%,#5B4BDB 48%,#4A3CC8 100%)}
+#app:before,#app:after{content:"";position:absolute;border-radius:50%;background:#fff;opacity:.05;pointer-events:none}
+#app:before{width:46vmax;height:46vmax;left:-14vmax;bottom:-18vmax}
+#app:after{width:30vmax;height:30vmax;right:-10vmax;top:-8vmax}
+#game{position:absolute;left:0;top:0;width:320px;height:400px;overflow:hidden;transform-origin:0 0;
+  background:radial-gradient(120% 58% at 50% 6%,rgba(255,206,124,.52) 0,rgba(255,226,170,.22) 46%,rgba(238,235,255,0) 76%),#EEEBFF;
+  font-family:Poppins,Figtree,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#0F0A6C}
+#game.boxed{border-radius:16px;box-shadow:0 18px 50px rgba(15,10,60,.45)}
+#game:focus{outline:none}  /* focus only waits here for a moment, between controls; it is not a control, so no ring */
+#game svg{display:block;overflow:visible}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-appearance:none;appearance:none;touch-action:none;
+  -webkit-tap-highlight-color:transparent;text-align:center}
+button:focus{outline:none}
+button:focus-visible{outline:3px solid #0F0A6C;outline-offset:2px;box-shadow:0 0 0 6px #fff}
+button[disabled]{cursor:default}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- canopy (Archie's awning) ---------- */
+.can{position:absolute;left:0;top:0;width:320px;height:40px;z-index:20;background:linear-gradient(#D6CDFF,#A592FF);transform-origin:50% 0}
+.can .shine{position:absolute;left:52px;top:4px;width:44px;height:4px;border-radius:2px;background:#fff;opacity:.45}
+.aeyes{position:absolute;left:8px;top:10px;width:40px;height:20px}
+.ae{position:absolute;top:0;width:16px;height:18px;border-radius:50%;background:#fff;overflow:hidden;box-shadow:0 0 0 2px rgba(255,255,255,.45),0 0 8px 2px rgba(255,255,255,.55)}
+.ae.a{left:2px}.ae.b{left:22px}
+.ae .pp{position:absolute;left:4.5px;top:5px;width:7px;height:8px;border-radius:50%;background:#1B1748}
+.ae .ld{position:absolute;left:-2px;top:-20px;width:20px;height:20px;background:#B7A8FF;border-bottom:2px solid #3A2FA8}
+.lamps{position:absolute;left:107px;top:3px;width:64px;height:30px}
+.lamp{position:absolute;top:0;width:18px;height:28px;transform-origin:9px 0}
+.lamp svg{width:18px;height:28px}
+.flips{position:absolute;left:176px;top:10px;height:21px;min-width:42px;padding:0 8px 0 5px;border-radius:11px;background:rgba(255,255,255,.6);
+  box-shadow:inset 0 0 0 1.5px #8F7BFA;display:flex;align-items:center;justify-content:center;gap:4px;font:700 13px/1 Poppins,Figtree,Arial,sans-serif;color:#2E2590;transform-origin:50% 50%}
+.flips svg{width:15px;height:15px;flex:none}
+.dots{position:absolute;left:225px;top:17px;width:52px;height:8px}
+.dots i{position:absolute;top:0;width:7px;height:7px;border-radius:50%;border:1.6px solid #3E33B0;opacity:.8}
+.dots i b{position:absolute;left:-1.6px;top:-1.6px;width:7px;height:7px;border-radius:50%;background:#3E33B0}
+.dots i.g b{background:#FFB547;box-shadow:0 0 0 1.6px #3E33B0}
+.scal{position:absolute;left:0;top:39px;width:320px;height:10px;z-index:20}
+.cbtn{position:absolute;top:0;width:54px;height:54px;z-index:22;display:flex;align-items:flex-start;justify-content:center;padding-top:6px}
+.cbtn .chip{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.62);box-shadow:inset 0 0 0 1.5px #8F7BFA;display:flex;align-items:center;justify-content:center;color:#2E2590}
+.cbtn .chip svg{width:18px;height:18px}
+.cbtn:focus-visible{outline:none;box-shadow:none}
+.cbtn:focus-visible .chip{outline:3px solid #0F0A6C;outline-offset:1px}
+.cbtn.off .chip{opacity:.35}
+/* ?close=1: the X gets its own 54 px slot; the pair dots move under the lamps */
+#game.withclose .lamps{left:104px}
+#game.withclose .flips{left:168px}
+#game.withclose .dots{left:110px;top:31px}
+
+/* ---------- cards ---------- */
+.cd{position:absolute;width:68px;height:118px;border-radius:12px;z-index:3;touch-action:none}
+.cd.up{z-index:4}
+.cd.top{z-index:6}
+.cd:focus-visible{outline:3px solid #0F0A6C;outline-offset:3px;box-shadow:0 0 0 7px #fff}
+.cw{position:absolute;left:0;top:0;width:68px;height:118px;transform-origin:50% 60%}
+.shd{position:absolute;left:4px;top:104px;width:60px;height:18px;border-radius:50%;background:radial-gradient(closest-side,rgba(27,23,72,.5),rgba(27,23,72,0));transform-origin:50% 50%}
+.fc{position:absolute;left:0;top:0;width:68px;height:118px;border-radius:10px;overflow:hidden;transform-origin:50% 50%}
+.bk{background:#5B4BDB;box-shadow:0 3px 0 #3A2FA8}
+.bk svg{width:68px;height:118px}
+.fr{background:linear-gradient(180deg,#fff 0,#fff 56%,#FFF3DC 100%);box-shadow:inset 0 0 0 1.5px #DDD7FF,0 3px 0 #CFC7FB}
+.fr.trap{background:linear-gradient(180deg,#FFF7F5 0,#FFE6E1 100%);box-shadow:inset 0 0 0 1.5px #F7CFC8,0 3px 0 #EBB9B0}
+.fr.gold{box-shadow:inset 0 0 0 3px #FFB547,0 3px 0 #E59A2E}
+.gl{position:absolute;left:-4px;top:-4px;width:76px;height:126px;border-radius:14px;border:3px solid #FFB547;box-shadow:0 0 16px 3px rgba(255,181,71,.7);opacity:0;pointer-events:none}
+.gl.bad{border-color:#FF6B5E;box-shadow:0 0 12px 2px rgba(255,107,94,.55)}
+.tk{position:absolute;right:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#FFB547;box-shadow:0 0 0 2px #fff;display:none;align-items:center;justify-content:center;z-index:3}
+.tk svg{width:12px;height:12px}
+.fr.gold .tk{display:flex}
+.xb{position:absolute;right:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#FF6B5E;box-shadow:0 0 0 2px #fff;display:flex;align-items:center;justify-content:center;z-index:3}
+.xb svg{width:11px;height:11px}
+.sbub{position:absolute;left:5px;top:5px;width:46px;height:33px;border-radius:13px;background:#EEEBFF;display:flex;align-items:center;justify-content:center;transform-origin:30% 100%;z-index:2}
+.sbub:after{content:"";position:absolute;left:14px;bottom:-4px;width:10px;height:10px;background:#EEEBFF;transform:rotate(45deg);border-radius:2px}
+.sbub svg{position:relative;z-index:1;width:36px;height:25px}
+.fig{position:absolute;bottom:0;transform-origin:50% 100%;z-index:1}
+.fig svg{width:100%;height:100%}
+.mate{position:absolute;right:-9px;bottom:0;width:36px;height:44px;z-index:2;transform-origin:50% 100%}
+.mate svg{width:36px;height:44px}
+.mtalk{position:absolute;left:7px;top:-15px;width:20px;height:13px;border-radius:7px;background:#fff;box-shadow:0 0 0 1.5px #C9C1FF;display:flex;align-items:center;justify-content:center;gap:2px}
+.mtalk i{width:3px;height:3px;border-radius:50%;background:#5B4BDB}
+.ef{position:absolute;pointer-events:none;z-index:3}
+.e-clock,.e-zz,.e-swirl,.e-q,.e-wag{right:3px;top:30px;width:22px;height:22px}
+.e-clock svg,.e-zz svg,.e-swirl svg,.e-q svg,.e-wag svg{width:22px;height:22px}
+.e-arw{left:44px;top:27px;width:21px;height:21px}
+.e-arw svg{width:21px;height:21px}
+.e-loop{left:0;bottom:6px;width:68px;height:30px}
+.e-loop svg{width:68px;height:30px}
+.e-crowd{bottom:0;width:34px;height:42px}
+.e-crowd svg{width:34px;height:42px}
+.e-crowd.l{left:-12px}.e-crowd.r{right:-12px}
+.e-hearts{left:18px;top:30px;width:40px;height:40px}
+.e-hearts svg{position:absolute;width:13px;height:13px}
+.disc{position:absolute;left:7px;top:15px;width:54px;height:54px;border-radius:50%;background:#5B4BDB;box-shadow:inset 0 -3px 0 rgba(15,10,108,.25)}
+.disc.deep{background:#3A2FA8}
+.disc.lite{background:#E4DEFF;box-shadow:inset 0 -3px 0 rgba(91,75,219,.18)}
+.disc svg{position:absolute;left:7px;top:7px;width:40px;height:40px}
+.disc .iris-s{position:absolute;left:3px;top:6px;width:48px;height:44px}
+.disc .iris-s svg{width:48px;height:44px}
+.lab{position:absolute;left:2px;right:2px;top:74px;height:38px;display:flex;align-items:center;justify-content:center;text-align:center;
+  font:600 12px/1.1 Poppins,Figtree,Arial,sans-serif;color:#2E2590;letter-spacing:-.015em}
+.fr.trap .lab{color:#A0284A}
+
+/* ---------- overlays on the board ---------- */
+.link{position:absolute;left:0;top:0;width:320px;height:400px;z-index:8;pointer-events:none}
+.ipop{position:absolute;left:0;top:0;width:110px;height:101px;margin:-50px 0 0 -55px;z-index:12;pointer-events:none;transform-origin:50% 60%}
+.ipop svg{width:110px;height:101px}
+.flyd{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#FFB547;box-shadow:0 0 0 2px #fff,0 0 10px 2px rgba(255,181,71,.8);z-index:25;pointer-events:none}
+
+/* ---------- glass doors (intro, help, end card) ---------- */
+.door{position:absolute;top:40px;width:160px;height:260px;z-index:14;pointer-events:none;background:linear-gradient(100deg,rgba(232,244,255,.97),rgba(176,196,255,.93))}
+.door.l{left:0;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),inset -3px 0 0 #8F7BFA}
+.door.r{left:160px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),inset 3px 0 0 #8F7BFA}
+.door:before{content:"";position:absolute;left:28px;top:30px;width:16px;height:180px;background:#fff;opacity:.45;transform:skewX(-14deg)}
+.door i{position:absolute;top:112px;width:6px;height:38px;border-radius:3px;background:#5B4BDB}
+.door.l i{right:12px}.door.r i{left:12px}
+.door span{display:none;position:absolute;top:70px;font:700 31px/1 Poppins,Figtree,Arial,sans-serif;color:#2E2590;letter-spacing:-.02em}
+.door.l span{right:22px}.door.r span{left:22px}
+.door.titled span{display:block}
+.door.plain i{display:none}
+
+/* ---------- end panel (sits on Archie's closed glass doors) ---------- */
+.endp{position:absolute;left:0;top:40px;width:320px;height:260px;z-index:16;pointer-events:none}
+.endp .fan{position:absolute;left:14px;top:38px;width:120px;height:118px}
+.endp .fan .mini{position:absolute;top:6px;width:68px;height:118px;transform-origin:50% 50%}
+.endp .fan .ef{display:none}
+.endp .scorew{position:absolute;left:138px;top:50px;width:172px}
+.endp .scr{font:700 46px/1 Poppins,Figtree,Arial,sans-serif;color:#0F0A6C;letter-spacing:-.03em}
+.endp .scr small{font-size:26px;letter-spacing:0}
+.endp .stars{display:flex;gap:5px;margin-top:6px}
+.endp .stars svg{width:24px;height:24px}
+.endp .best{margin-top:6px;font:600 12.5px/1.2 Figtree,Poppins,Arial,sans-serif;color:#3A2FA8}
+.endp .stats{position:absolute;left:12px;right:12px;top:160px;height:24px;display:flex;justify-content:center;gap:6px}
+.endp .stats span{display:flex;align-items:center;gap:5px;height:24px;padding:0 10px 0 7px;border-radius:12px;background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 1.5px #C9C1FF;
+  font:600 12.5px/1 Poppins,Figtree,Arial,sans-serif;color:#2E2590;white-space:nowrap}
+.endp .stats svg{width:15px;height:15px;flex:none}
+.endp .rem{position:absolute;left:12px;right:12px;top:190px;min-height:62px;border-radius:14px;background:#fff;box-shadow:0 3px 0 #D9D3FF,inset 0 0 0 2px #E2DDFF;padding:7px 12px 8px}
+.endp .rem small{display:block;font:700 10px/1 Figtree,Poppins,Arial,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#4A3CC8}
+.endp .rem p{font:600 13.5px/1.22 Poppins,Figtree,Arial,sans-serif;color:#0F0A6C;margin-top:5px;letter-spacing:-.01em;text-wrap:balance}
+.abw{position:absolute;left:160px;top:47px;width:0;height:0;z-index:18;pointer-events:none}   /* Archie's speech bubble never swallows a tap meant for the card under it */
+.ab{position:absolute;left:0;top:0;display:flex;align-items:center;gap:6px;background:#fff;border-radius:14px;padding:4px 12px 4px 4px;
+  box-shadow:0 3px 0 rgba(27,23,72,.16),0 0 0 2px #C9C1FF;font:600 13.5px/1.15 Poppins,Figtree,Arial,sans-serif;color:#1B1748;white-space:nowrap;letter-spacing:-.01em;transform-origin:50% 0}
+.ab:before{content:"";position:absolute;left:50%;top:-7px;margin-left:-7px;border:7px solid transparent;border-bottom-color:#fff;border-top:0}
+.ab .av{width:28px;height:28px;flex:none;border-radius:50%;background:#EEEBFF}
+.ab .av svg{width:28px;height:28px}
+
+/* ---------- dock: pair tray, toast, buttons ---------- */
+.dock{position:absolute;left:0;top:300px;width:320px;height:100px;z-index:1;background:linear-gradient(#F4F1FF,#E1DBFF)}
+.mat{position:absolute;left:0;top:297px;width:320px;height:7px;z-index:2;background:#3B2F9E}
+.mat:after{content:"";position:absolute;left:96px;top:0;width:128px;height:7px;background:#FFE9B0;opacity:.55;clip-path:polygon(10% 0,90% 0,100% 100%,0 100%)}
+.dlab{position:absolute;left:0;top:309px;width:320px;height:18px;text-align:center;z-index:3;font:700 10.5px/18px Figtree,Poppins,Arial,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:#4A3CC8;white-space:nowrap}
+.dlab.hint{font:600 14px/18px Poppins,Figtree,Arial,sans-serif;letter-spacing:-.005em;text-transform:none;color:#2E2590}
+.tray{position:absolute;left:16px;top:332px;width:288px;height:54px;z-index:3}
+.tslot{position:absolute;top:0;width:88px;height:54px;border-radius:14px;border:2px dashed #B9AEF5;background:rgba(255,255,255,.35)}
+.tslot:before{content:"";position:absolute;left:34px;top:15px;width:16px;height:16px;opacity:.35;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.5C6 16.6 2.5 13.2 2.5 9.2 2.5 6.4 4.7 4.3 7.4 4.3c1.9 0 3.6 1 4.6 2.6 1-1.6 2.7-2.6 4.6-2.6 2.7 0 4.9 2.1 4.9 4.9 0 4-3.5 7.4-9.5 11.3z' fill='%238F7BFA'/%3E%3C/svg%3E") center/16px 16px no-repeat}
+.pchip{position:absolute;left:-2px;top:-2px;width:88px;height:54px;border-radius:14px;background:#fff;box-shadow:inset 0 0 0 2.5px #FFB547,0 3px 0 #E59A2E;display:flex;align-items:center;justify-content:center;gap:3px;transform-origin:50% 60%}
+.pchip .cb{position:relative;width:36px;height:28px;border-radius:9px;background:#EEEBFF;display:flex;align-items:center;justify-content:center}
+.pchip .cb svg{width:30px;height:21px}
+.pchip .lk{width:10px;height:10px}
+.pchip .lk svg{width:10px;height:10px}
+.pchip .cm{position:relative;width:32px;height:32px;border-radius:50%;background:#5B4BDB}
+.pchip .cm svg{position:absolute;left:5px;top:5px;width:22px;height:22px}
+.toast{position:absolute;left:0;top:300px;width:320px;height:100px;z-index:19;background:#3A2FA8;border-radius:18px 18px 0 0;box-shadow:0 -6px 16px rgba(58,47,168,.25);color:#fff}
+.toast .arc{position:absolute;left:10px;top:27px;width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.toast .arc svg{width:40px;height:41px}
+.toast p{position:absolute;left:66px;right:58px;top:0;height:92px;display:flex;align-items:center;font:600 15px/1.3 Poppins,Figtree,Arial,sans-serif;letter-spacing:-.005em;text-wrap:balance}
+.toast .go{position:absolute;right:4px;top:23px;width:54px;height:54px;display:flex;align-items:center;justify-content:center}
+.toast .go span{width:40px;height:40px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.toast .go svg{width:20px;height:20px}
+.toast .go:focus-visible{outline:none;box-shadow:none}
+.toast .go:focus-visible span{outline:3px solid #41E7AB;outline-offset:2px}
+.toast .bar{position:absolute;left:66px;right:58px;bottom:9px;height:3px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
+.toast .bar i{display:block;width:100%;height:100%;background:#41E7AB;transform-origin:0 50%}
+.dcapw{position:absolute;left:160px;top:305px;width:0;height:0;z-index:21}
+.dcap{position:absolute;left:0;top:0;height:26px;display:flex;align-items:center;gap:8px;padding:0 13px 0 10px;border-radius:13px;background:#0F0A6C;color:#fff;
+  font:600 13px/1 Poppins,Figtree,Arial,sans-serif;white-space:nowrap;box-shadow:0 0 0 2px #fff,0 4px 10px rgba(15,10,108,.3);letter-spacing:-.005em;transform-origin:50% 0}
+.dcap .st{display:flex;gap:3px}
+.dcap .st i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+.dcap .st i.on{background:#41E7AB}
+.big{position:absolute;left:16px;top:318px;width:288px;height:66px;border-radius:20px;z-index:22;color:#fff;font:700 23px/1 Poppins,Figtree,Arial,sans-serif;letter-spacing:-.01em;
+  background:linear-gradient(#7E70F4,#5B4BDB 58%,#4A3CC8);box-shadow:0 6px 0 #2F2690,inset 0 2px 0 rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;gap:12px;transform-origin:50% 50%}
+.big svg{width:22px;height:22px}
+.endb{position:absolute;left:16px;top:318px;width:288px;height:66px;z-index:22;display:flex;gap:8px;transform-origin:50% 50%}
+.endb button{height:66px;border-radius:18px;font:700 16.5px/1.05 Poppins,Figtree,Arial,sans-serif;letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;gap:8px}
+.endb .pri{flex:1.65;color:#fff;background:linear-gradient(#7E70F4,#5B4BDB 58%,#4A3CC8);box-shadow:0 5px 0 #2F2690,inset 0 2px 0 rgba(255,255,255,.35)}
+.endb .sec{flex:1;color:#3E33B0;background:#fff;box-shadow:0 4px 0 #C9C1FF,inset 0 0 0 2.5px #C9C1FF}
+.endb .pri svg{width:18px;height:18px}
+.endb.fail .pri{display:none}
+.endb button[disabled]{pointer-events:none}  /* while they pop in, taps pass through (and still count as part of a run of taps) */
+.endb.fail .sec{flex:1;color:#fff;background:linear-gradient(#7E70F4,#5B4BDB 58%,#4A3CC8);box-shadow:0 5px 0 #2F2690,inset 0 2px 0 rgba(255,255,255,.35)}
+.hand{position:absolute;left:0;top:0;width:54px;height:68px;z-index:30;pointer-events:none;transform-origin:21px 2px}
+.hand svg{width:54px;height:68px;filter:drop-shadow(0 6px 6px rgba(15,10,108,.25))}
+</style>
+</head>
+<body>
+<div id="app"><div id="game" role="application" aria-label="Sahi Jodi, a memory pairs floor game"></div></div>
+<div id="live" class="sr" aria-live="polite" aria-atomic="true"></div>
+<script>
+(function () {
+'use strict';
+
+/* =====================================================================
+   CONTENT  (all on-screen words live here; card labels 1-2 words,
+   demo captions <= 5 words, never an exclamation mark)
+   ===================================================================== */
+var CONTENT = {
+  title: ['Sahi', 'Jodi'],
+  /* every card. Shoppers name the move that pairs with them. aria = what a screen reader says when it is face up */
+  cards: {
+    anjali:  { kind: 'shop', pair: 'walk',    name: 'Anjali',   aria: 'Anjali. Her bubble shows a laptop.' },
+    sethi:   { kind: 'shop', pair: 'space',   name: 'Mr Sethi', aria: 'Mr Sethi. His bubble shows a shopping bag strolling between two shelves: just looking.' },
+    meera:   { kind: 'shop', pair: 'help',    name: 'Meera',    aria: 'Meera. Her bubble shows an empty chair at the laptop desk: nobody there to help.' },
+    pranav:  { kind: 'shop', pair: 'observe', name: 'Pranav',   aria: 'Pranav. His bubble shows him already talking with another promoter.' },
+    dadi:    { kind: 'shop', pair: 'ask',     name: 'Dadi',     aria: 'Dadi. She has just walked in. Her bubble shows an arrow through the doorway and a small question mark.' },
+    walk:    { kind: 'move', label: 'Walk them',    aria: 'Move: walk them there. An open palm.' },
+    space:   { kind: 'move', label: 'Give space',   aria: 'Move: give space. An hourglass.' },
+    help:    { kind: 'move', label: 'Get help',     aria: 'Move: get help. A team bell.' },
+    observe: { kind: 'move', label: 'Observe',      aria: 'Move: observe. An eye.' },
+    ask:     { kind: 'move', label: 'Ask openly',   aria: 'Move: ask a broad question.' },
+    iris:    { kind: 'trap', label: 'Show glasses', aria: 'Trap: Iris, show the glasses.' },
+    point:   { kind: 'trap', label: 'Point',        aria: 'Trap: point the way.' }
+  },
+  /* the deck's own lines, word for word, shown after a pair or a trap (long lines come in two parts) */
+  lines: {
+    walk:    ['The notebook section is this way.', 'Let me connect you with the relevant specialist.'],
+    space:   ['Of course. Please take your time.', 'I’ll be nearby if you need help.'],
+    help:    ['The laptop specialist is assisting another customer.', 'I’ve informed the team, and someone will be with you shortly.'],
+    observe: ['Observe. Stay available. Don’t interrupt.'],
+    ask:     ['What would you like to explore today?'],
+    iris:    ['Customer first. Product later.'],
+    point:   ['Don’t just point. Make the connection.']
+  },
+  /* grid 1 has three shoppers; grid 2 rotates in two new ones plus the grid 1 pair that took the most flips */
+  grids: [['anjali', 'sethi', 'meera'], ['pranav', 'dadi']],
+  traps: ['iris', 'point'],
+  archie: {
+    ready: 'Six pairs. Two grids. No hovering.',
+    grid2: 'Grid two. New faces.',
+    back: 'Back to your cards.',
+    welcome: 'Welcome in.'
+  },
+  tiers: {
+    perfect: 'Six pairs. Zero hovering.',
+    three: 'Sharp memory. Sharper manners.',
+    two: 'Got there. Took the scenic route.',
+    one: 'Every card knows you by name now.',
+    traps: 'Iris enjoyed the attention.',
+    point: 'The pointing hand felt very seen.'
+  },
+  /* what the end card asks you to remember, by biggest miss (deck words) */
+  remember: {
+    anjali: 'Let me connect you with the relevant specialist.',
+    sethi: 'Of course. Please take your time.',
+    meera: 'I’ve informed the team, and someone will be with you shortly.',
+    pranav: 'Observe. Stay available. Don’t interrupt.',
+    dadi: 'What would you like to explore today?',
+    iris: 'Customer first. Product later.',
+    point: 'Don’t just point. Make the connection.',
+    perfect: 'Ushering doesn’t begin with a pitch. It begins by being helpful.'
+  },
+  hint: 'Flip two cards',
+  grid: 'Grid {n} of 2',
+  /* read out by screen readers only */
+  say: { down: 'Card {n}, face down.', done: 'Matched.', pair: 'A pair.', nopair: 'Not a pair.', trap: 'Trap. It never pairs.' },
+  react: { tap: 'checks the time', edge: 'edges away', crowd: 'feels crowded', stared: 'feels watched', repeat: 'points at the bubble again',
+    lost: 'looks around, lost', sleepy: 'nods off', wag: 'wags a finger', brow: 'raises an eyebrow', circle: 'wanders in a circle', glance: 'looks over' },
+  demo: { captions: ['Flip two cards', 'Shopper + right move', 'Traps never pair'], go: 'Your turn' },
+  end: { enter: 'Enter LMS', again: 'Play again', remember: 'To remember', best: 'Best', retry: 'Nearly there. One more round.', need: 'Score {p}% to enter',
+    pairs: '{n} pairs', flips: '{n} flips' }
+};
+/* how a shopper reacts to a move (or a trap) that is not theirs */
+var REACT = {
+  anjali: { space: 'tap', help: 'repeat', observe: 'stared', ask: 'repeat', iris: 'tap' },
+  sethi:  { walk: 'edge', help: 'crowd', observe: 'stared', ask: 'edge', iris: 'edge' },
+  meera:  { walk: 'lost', space: 'sleepy', observe: 'stared', ask: 'repeat', iris: 'tap' },
+  pranav: { walk: 'crowd', space: 'lost', help: 'crowd', ask: 'crowd', iris: 'crowd' },
+  dadi:   { walk: 'lost', space: 'wag', help: 'crowd', observe: 'brow', iris: 'brow' }
+};
+/* scoring: each grid is worth 50. The first 11 flips of a grid are free; each extra flip costs 3,
+   and each slip (turning a card you had already seen that does not pair) costs 5. A grid never drops below 10. */
+var SCORE = { grid: 50, free: 11, flip: 3, slip: 5, floor: 10 };
+
+/* =====================================================================
+   OPTIONS AND STORAGE
+   ===================================================================== */
+var Q = {};
+try {
+  String(location.search || '').replace(/^\?/, '').split('&').forEach(function (kv) {
+    if (!kv) return; var i = kv.indexOf('=');
+    Q[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? '' : decodeURIComponent(kv.slice(i + 1));
+  });
+} catch (e) {}
+var OPT = {
+  pass: Math.max(0, Math.min(100, parseInt(Q.pass, 10) || 0)),
+  demo: Q.demo === 'always' ? 'always' : (Q.demo === 'never' ? 'never' : 'auto'),
+  close: Q.close === '1' || Q.close === 'true' || Q.close === 'yes',
+  shuffle: Q.shuffle !== '0'          /* ?shuffle=0 keeps a fixed card layout (for testing) */
+};
+var store = {
+  get: function (k) { try { return window.localStorage.getItem('sahiJodi.' + k); } catch (e) { return null; } },
+  set: function (k, v) { try { window.localStorage.setItem('sahiJodi.' + k, String(v)); } catch (e) {} }
+};
+var RM = false;
+try { RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+/* =====================================================================
+   SMALL HELPERS
+   ===================================================================== */
+var E = {
+  lin: function (t) { return t; },
+  out: function (t) { return 1 - Math.pow(1 - t, 3); },
+  inn: function (t) { return t * t * t; },
+  inOut: function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; },
+  outBack: function (t) { var c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  outBackBig: function (t) { var c1 = 2.8, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
+  inQuad: function (t) { return t * t; },
+  outQuad: function (t) { return 1 - (1 - t) * (1 - t); },
+  outExpo: function (t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); },
+  sine: function (t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
+};
+function clamp(v, a, b) { a = a == null ? 0 : a; b = b == null ? 1 : b; return v < a ? a : (v > b ? b : v); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+function prog(t, a, b, e) { var u = clamp((t - a) / (b - a)); return e ? e(u) : u; }
+function jig(t, t0, amp, freq, decay) { var d = t - t0; if (d < 0 || d > 2.5) return 0; return amp * Math.sin(d * freq) * Math.exp(-d * decay); }
+function h(tag, cls, html, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (parent) parent.appendChild(e); return e; }
+function setTf(e, v) { if (e.__tf !== v) { e.style.transform = v; e.__tf = v; } }
+function setOp(e, v) { v = (+v).toFixed(3); if (e.__op !== v) { e.style.opacity = v; e.__op = v; } }
+function show(e, on) { if (!e) return; var v = on ? '' : 'none'; if (e.__d !== v) { e.style.display = v; e.__d = v; } }
+function visi(e, on) { var v = on ? '' : 'hidden'; if (e.__vi !== v) { e.style.visibility = v; e.__vi = v; } }
+function cls(e, c, on) { if (e.classList.contains(c) !== !!on) e.classList.toggle(c, !!on); }
+function sT(g, x, y, s, r, cx, cy, sy) {
+  if (!g) return;
+  cx = cx || 0; cy = cy || 0; r = r || 0; var sx = s == null ? 1 : s; sy = sy == null ? sx : sy; var v;
+  if (!r && sx === 1 && sy === 1) v = 'translate(' + x.toFixed(2) + ' ' + y.toFixed(2) + ')';
+  else v = 'translate(' + (x + cx).toFixed(2) + ' ' + (y + cy).toFixed(2) + ') rotate(' + r.toFixed(2) + ') scale(' + sx.toFixed(4) + ' ' + sy.toFixed(4) + ') translate(' + (-cx).toFixed(2) + ' ' + (-cy).toFixed(2) + ')';
+  if (g.__t !== v) { g.setAttribute('transform', v); g.__t = v; }
+}
+function txt(e, s) { if (e.__s !== s) { e.textContent = s; e.__s = s; } }
+function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+function words(s) { return String(s || '').replace(/[….,?]/g, ' ').trim().split(/\s+/).filter(Boolean).length; }
+function uniq(svg, u) {   /* give every id inside an inline SVG a suffix, so copies never share gradients */
+  return svg.replace(/id="([^"]+)"/g, 'id="$1' + u + '"').replace(/url\(#([^)]+)\)/g, 'url(#$1' + u + ')').replace(/href="#([^"]+)"/g, 'href="#$1' + u + '"');
+}
+function fmtTime(s) { s = Math.max(0, Math.round(s)); var m = Math.floor(s / 60), r = s % 60; return m + ':' + (r < 10 ? '0' : '') + r; }
+
+/* =====================================================================
+   ART  (inline SVG; the Welcome Floor cast from Three Whistles)
+   ===================================================================== */
+var SCALLOP = 'M0 0H320V2A8 7 0 0 1 304 2A8 7 0 0 1 288 2A8 7 0 0 1 272 2A8 7 0 0 1 256 2A8 7 0 0 1 240 2A8 7 0 0 1 224 2A8 7 0 0 1 208 2A8 7 0 0 1 192 2A8 7 0 0 1 176 2A8 7 0 0 1 160 2A8 7 0 0 1 144 2A8 7 0 0 1 128 2A8 7 0 0 1 112 2A8 7 0 0 1 96 2A8 7 0 0 1 80 2A8 7 0 0 1 64 2A8 7 0 0 1 48 2A8 7 0 0 1 32 2A8 7 0 0 1 16 2A8 7 0 0 1 0 2Z';
+function archieSvg(u) {
+  return ('<svg viewBox="20 30 220 224" aria-hidden="true"><defs><linearGradient id="U1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8E78FF"/><stop offset=".55" stop-color="#5B4BDB"/><stop offset="1" stop-color="#3E33B0"/></linearGradient><linearGradient id="U2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2C8FF"/><stop offset="1" stop-color="#A592FF"/></linearGradient><linearGradient id="U3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DDF0FF"/><stop offset="1" stop-color="#9DB6FF"/></linearGradient><linearGradient id="U4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFEFC2"/><stop offset="1" stop-color="#FFC66E"/></linearGradient><linearGradient id="U6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDEAFF"/><stop offset="1" stop-color="#C7C1FF"/></linearGradient></defs>' +
+    '<path d="M42 228V98Q42 64 76 64H184Q218 64 218 98V228Q218 234 212 234H48Q42 234 42 228Z" fill="url(#U1)"/><path d="M42 98Q42 64 76 64H108Q62 72 58 114V234H48Q42 234 42 228Z" fill="#fff" opacity=".1"/><path d="M40 62H220V66Q220 72 212 72Q204 72 202 66Q196 72 188 72Q180 72 178 66Q172 72 164 72Q156 72 154 66Q148 72 140 72Q132 72 130 66Q124 72 116 72Q108 72 106 66Q100 72 92 72Q84 72 82 66Q76 72 68 72Q60 72 58 66Q52 72 46 72Q40 72 40 66Z" fill="#8F7BFA"/><rect x="32" y="40" width="196" height="26" rx="13" fill="url(#U2)"/><path d="M78 234V188A52 38 0 0 1 182 188V234Z" fill="url(#U6)"/><path d="M87 234V190A43 30 0 0 1 173 190V234Z" fill="url(#U4)"/><path d="M87 190A43 30 0 0 1 173 190V194H87Z" fill="url(#U3)"/><rect x="83" y="192" width="94" height="7" rx="3.5" fill="#3E33B0"/><path d="M87 199H105V234H87Z" fill="url(#U3)"/><path d="M155 199H173V234H155Z" fill="url(#U3)"/><rect x="62" y="230" width="136" height="16" rx="8" fill="#3B2F9E"/>' +
+    '<circle cx="104" cy="108" r="18" fill="#fff"/><circle cx="107" cy="110" r="11" fill="#2E2A8C"/><circle cx="107" cy="110" r="7.7" fill="#14113F"/><circle cx="103" cy="105.8" r="3.7" fill="#fff"/><circle cx="156" cy="108" r="18" fill="#fff"/><circle cx="159" cy="110" r="11" fill="#2E2A8C"/><circle cx="159" cy="110" r="7.7" fill="#14113F"/><circle cx="155" cy="105.8" r="3.7" fill="#fff"/>' +
+    '<path d="M88 85Q99 78 113 82" fill="none" stroke="#1B1748" stroke-width="5.5" stroke-linecap="round"/><path d="M147 82Q161 78 172 85" fill="none" stroke="#1B1748" stroke-width="5.5" stroke-linecap="round"/><path d="M122 133Q130 140 138 133" fill="none" stroke="#1B1748" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="80" cy="131" rx="7.5" ry="4.4" fill="#FF8FB8" opacity=".7"/><ellipse cx="180" cy="131" rx="7.5" ry="4.4" fill="#FF8FB8" opacity=".7"/></svg>')
+    .replace(/U(\d)/g, function (m, d) { return 'tw' + u + 'a' + d; });
+}
+var ANJALI = '<svg viewBox="50 18 150 234" overflow="visible" aria-hidden="true">' +
+  '<defs><radialGradient id="an-s" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#E7B48E"/><stop offset="1" stop-color="#C98B63"/></radialGradient><linearGradient id="an-t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EE8462"/><stop offset="1" stop-color="#CF5A3D"/></linearGradient><linearGradient id="an-h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33233A"/><stop offset="1" stop-color="#1C1222"/></linearGradient><linearGradient id="an-b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B9ACFF"/><stop offset="1" stop-color="#8F7CF0"/></linearGradient><clipPath id="an-ec"><circle cx="105" cy="86" r="15.5"/><circle cx="143" cy="86" r="15.5"/></clipPath></defs>' +
+  '<ellipse cx="124" cy="247" rx="46" ry="6" fill="#1B1748" opacity=".14"/>' +
+  '<g class="hb"><path d="M74 80Q70 150 92 166H156Q178 150 174 80Z" fill="url(#an-h)"/></g>' +
+  '<g class="legL"><path d="M102 196H124L122 236H104Z" fill="#4F6BB8"/><path d="M96 241Q96 232 106 232H123V243H98Z" fill="#C98A55"/><rect x="96" y="240" width="27" height="4" rx="2" fill="#8E5530"/></g>' +
+  '<g class="legR"><path d="M128 196H150L146 236H128Z" fill="#4F6BB8"/><path d="M128 196H150L146 236H140Z" fill="#3E57A0"/><path d="M128 232H144Q154 232 154 241L152 243H128Z" fill="#C98A55"/><rect x="128" y="240" width="26" height="4" rx="2" fill="#8E5530"/></g>' +
+  '<g class="torso"><path d="M62 172H96L99 212Q99 216 95 216H63Q59 216 59 212Z" fill="url(#an-b)"/><path d="M62 172H96L97 181H61Z" fill="#7A66E0" opacity=".5"/>' +
+    '<path d="M96 140Q100 130 124 130Q148 130 152 140L156 200H92Z" fill="url(#an-t)"/><path d="M144 134Q152 138 152 146L156 200H146Z" fill="#B84A30" opacity=".55"/>' +
+    '<path d="M114 130L124 144L134 130Z" fill="#D49A72"/><path d="M112 129L124 144L118 148L108 134Z" fill="#F59A7A"/><path d="M136 129L124 144L130 148L140 134Z" fill="#F59A7A"/>' +
+    '<path d="M66 173Q72 138 104 132" fill="none" stroke="#6A56D6" stroke-width="4.5" stroke-linecap="round"/>' +
+    '<path d="M98 140Q84 150 84 184Q84 190 91 190Q97 190 97 184L100 158Z" fill="url(#an-t)"/><circle cx="90" cy="190" r="7.5" fill="#D49A72"/>' +
+    '<path d="M150 140Q164 150 164 184Q164 190 157 190Q151 190 151 184L148 158Z" fill="url(#an-t)"/><circle cx="158" cy="190" r="7.5" fill="#D49A72"/>' +
+    '<rect x="92" y="196" width="64" height="6" rx="2.5" fill="#3E57A0"/></g>' +
+  '<rect x="114" y="116" width="20" height="18" rx="6" fill="#B67A54"/>' +
+  '<g class="head"><ellipse cx="77" cy="88" rx="9" ry="12" fill="#C98B63"/><ellipse cx="171" cy="88" rx="9" ry="12" fill="#C98B63"/>' +
+    '<ellipse cx="124" cy="80" rx="48" ry="50" fill="url(#an-s)"/>' +
+    '<circle cx="105" cy="86" r="15.5" fill="#fff"/><circle cx="143" cy="86" r="15.5" fill="#fff"/>' +
+    '<g clip-path="url(#an-ec)"><g class="pup"><circle cx="107" cy="88" r="9.3" fill="#2E2A8C"/><circle cx="107" cy="88" r="6.5" fill="#14113F"/><circle cx="103.7" cy="84.5" r="3.2" fill="#fff"/><circle cx="141" cy="88" r="9.3" fill="#2E2A8C"/><circle cx="141" cy="88" r="6.5" fill="#14113F"/><circle cx="137.7" cy="84.5" r="3.2" fill="#fff"/></g>' +
+      '<g class="lid"><path d="M86 28H162V70.5H86Z" fill="#D9A27E"/><path d="M86 70.5H162" stroke="#1C1222" stroke-width="2.6"/></g></g>' +
+    '<g class="brow"><path d="M92 66Q101 60 113 63M135 63Q147 60 156 66" fill="none" stroke="#1C1222" stroke-width="4.5" stroke-linecap="round"/><path d="M92 76L88 72M154 76L158 72" stroke="#1C1222" stroke-width="2.4" stroke-linecap="round"/></g>' +
+    '<path d="M122 98Q124 101 126 98" fill="none" stroke="#9A6240" stroke-width="3" stroke-linecap="round"/>' +
+    '<g class="m-sm"><path d="M114 108Q124 116 134 108" fill="none" stroke="#8A3226" stroke-width="4" stroke-linecap="round"/></g>' +
+    '<g class="m-tk"><path d="M115 106Q124 122 133 106Q124 103 115 106Z" fill="#8A3226"/><path d="M119 112Q124 116 129 112" fill="none" stroke="#FF8E8E" stroke-width="2.4" stroke-linecap="round"/></g>' +
+    '<g class="m-fl"><path d="M116 110H132" stroke="#8A3226" stroke-width="4" stroke-linecap="round"/></g>' +
+    '<g class="m-o"><ellipse cx="124" cy="110" rx="4.5" ry="5.5" fill="#8A3226"/></g>' +
+    '<ellipse cx="91" cy="104" rx="7" ry="4" fill="#FF7E8E" opacity=".45"/><ellipse cx="157" cy="104" rx="7" ry="4" fill="#FF7E8E" opacity=".45"/>' +
+    '<circle cx="77" cy="98" r="3" fill="#F2C14E"/><circle cx="171" cy="98" r="3" fill="#F2C14E"/>' +
+    '<path d="M76 84Q72 28 124 26Q176 28 172 84Q168 66 158 58Q140 64 126 50Q116 62 92 62Q80 70 76 84Z" fill="url(#an-h)"/><path d="M126 50Q140 62 158 58Q146 52 134 44Z" fill="#4A3552" opacity=".8"/></g>' +
+  '<g class="sweat"><path d="M170 60Q175 69 170 72Q165 69 170 60Z" fill="#9FDBFF" stroke="#fff" stroke-width="1.2"/></g>' +
+  '</svg>';
+var DADI = '<svg viewBox="36 16 150 234" overflow="visible" aria-hidden="true">' +
+  '<defs><radialGradient id="da-s" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#DDA885"/><stop offset="1" stop-color="#BC7F58"/></radialGradient>' +
+  '<linearGradient id="da-c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6CC07A"/><stop offset="1" stop-color="#3F9152"/></linearGradient>' +
+  '<linearGradient id="da-p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C2457A"/><stop offset="1" stop-color="#8E2A55"/></linearGradient>' +
+  '<linearGradient id="da-hr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7F7FB"/><stop offset="1" stop-color="#C3C7D6"/></linearGradient>' +
+  '<clipPath id="da-ec"><circle cx="84" cy="89" r="13"/><circle cx="116" cy="89" r="13"/></clipPath></defs>' +
+  '<ellipse cx="100" cy="244" rx="44" ry="5" fill="#1B1748" opacity=".14"/>' +
+  '<path d="M64 186H136L142 236H58Z" fill="url(#da-p)"/><path d="M58.6 229H141.4L142 236H58Z" fill="#F2C14E"/>' +
+  '<g class="legL"><ellipse cx="84" cy="238" rx="10" ry="4" fill="#8E5530"/></g><g class="legR"><ellipse cx="116" cy="238" rx="10" ry="4" fill="#8E5530"/></g>' +
+  '<path d="M70 140Q54 148 40 145" fill="none" stroke="#55AD66" stroke-width="14" stroke-linecap="round"/>' +
+  '<path d="M66 140Q70 128 100 128Q130 128 134 140L140 196H60Z" fill="url(#da-c)"/>' +
+  '<path d="M88 130L100 156L112 130Z" fill="#B23A6A"/><path d="M100 156V196" stroke="#3A8048" stroke-width="2"/>' +
+  '<circle cx="105" cy="166" r="2.3" fill="#E8F5EA"/><circle cx="105" cy="178" r="2.3" fill="#E8F5EA"/><circle cx="105" cy="190" r="2.3" fill="#E8F5EA"/>' +
+  '<g class="farm"><path d="M130 140Q152 146 151 122" fill="none" stroke="#4FA762" stroke-width="14" stroke-linecap="round"/>' +
+    '<rect x="146" y="84" width="9" height="28" rx="4.5" fill="#C98B63"/><circle cx="150.5" cy="114" r="8.5" fill="#C98B63"/><rect x="147.8" y="85.5" width="5.4" height="5" rx="2.4" fill="#F0C9AE"/>' +
+    '<g class="emph"><path d="M138 80L132 74M150.5 75V67M163 80L169 74" stroke="#FF7A3D" stroke-width="2.8" stroke-linecap="round"/></g></g>' +
+  '<rect x="91" y="116" width="18" height="16" rx="6" fill="#A86B44"/>' +
+  '<g class="head"><circle cx="100" cy="31" r="15" fill="url(#da-hr)"/><path d="M89 30Q100 24 111 30" fill="none" stroke="#B3B8CA" stroke-width="1.6"/>' +
+    '<ellipse cx="59" cy="90" rx="7" ry="10" fill="#BC7F58"/><ellipse cx="141" cy="90" rx="7" ry="10" fill="#BC7F58"/>' +
+    '<circle cx="59" cy="100" r="3" fill="#F2C14E"/><circle cx="141" cy="100" r="3" fill="#F2C14E"/>' +
+    '<ellipse cx="100" cy="84" rx="42" ry="44" fill="url(#da-s)"/>' +
+    '<circle cx="84" cy="89" r="13" fill="#fff"/><circle cx="116" cy="89" r="13" fill="#fff"/>' +
+    '<g clip-path="url(#da-ec)"><g class="pup"><circle cx="81.5" cy="90" r="7.6" fill="#2E2A8C"/><circle cx="81.5" cy="90" r="5.2" fill="#14113F"/><circle cx="79" cy="87.6" r="2.4" fill="#fff"/>' +
+      '<circle cx="113.5" cy="90" r="7.6" fill="#2E2A8C"/><circle cx="113.5" cy="90" r="5.2" fill="#14113F"/><circle cx="111" cy="87.6" r="2.4" fill="#fff"/></g>' +
+      '<g class="lid"><path d="M68 34H132V76H68Z" fill="#C88A63"/><path d="M70 76H130" stroke="#6E3A28" stroke-width="2.6" stroke-linecap="round"/></g></g>' +
+    '<circle cx="100" cy="67" r="2.6" fill="#D7263D"/>' +
+    '<path d="M98 99Q101 102 98 104" fill="none" stroke="#9A6240" stroke-width="2.4" stroke-linecap="round"/>' +
+    '<g class="m-tk"><path d="M91 109Q100 123 109 109Q100 106 91 109Z" fill="#7A2E24"/><path d="M95 115Q100 119 105 115Q100 113 95 115Z" fill="#FF8E8E"/></g>' +
+    '<g class="m-fl"><path d="M92 111H108" stroke="#7A2E24" stroke-width="3.2" stroke-linecap="round"/></g>' +
+    '<g class="m-sm"><path d="M91 108Q100 117 109 108" fill="none" stroke="#7A2E24" stroke-width="3.2" stroke-linecap="round"/></g>' +
+    '<g class="m-o"><ellipse cx="100" cy="111" rx="3.6" ry="4.4" fill="#7A2E24"/></g>' +
+    '<ellipse cx="72" cy="105" rx="6.5" ry="3.8" fill="#FF7E8E" opacity=".4"/><ellipse cx="128" cy="105" rx="6.5" ry="3.8" fill="#FF7E8E" opacity=".4"/>' +
+    '<path d="M58 88Q54 40 100 38Q146 40 142 88Q138 64 124 58Q110 56 100 46Q90 56 76 58Q62 64 58 88Z" fill="url(#da-hr)"/>' +
+    '<path d="M100 47Q90 53 79 56M100 47Q110 53 121 56" fill="none" stroke="#B3B8CA" stroke-width="1.5"/>' +
+    '<g class="browL"><path d="M70 72Q79 64 92 68" fill="none" stroke="#8F94A8" stroke-width="4" stroke-linecap="round"/></g>' +
+    '<g class="browR"><path d="M108 68Q121 64 130 72" fill="none" stroke="#8F94A8" stroke-width="4" stroke-linecap="round"/></g></g>' +
+  '<ellipse cx="31" cy="144" rx="9" ry="8" fill="#C98B63"/><path d="M25 139Q24 145 27 150M30 138Q29 145 32 151" fill="none" stroke="#A86B44" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>' +
+  '</svg>';
+var MEERA = '<svg viewBox="46 14 160 238" overflow="visible" aria-hidden="true">' +
+  '<defs><radialGradient id="me-s" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#E3A982"/><stop offset="1" stop-color="#C27F58"/></radialGradient>' +
+  '<linearGradient id="me-k" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC34D"/><stop offset="1" stop-color="#E5961C"/></linearGradient>' +
+  '<linearGradient id="me-h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E2036"/><stop offset="1" stop-color="#170F1E"/></linearGradient>' +
+  '<linearGradient id="me-d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3CC7B5"/><stop offset="1" stop-color="#1F8F86"/></linearGradient>' +
+  '<clipPath id="me-ec"><circle cx="106" cy="88" r="14"/><circle cx="142" cy="88" r="14"/></clipPath></defs>' +
+  '<ellipse cx="124" cy="247" rx="42" ry="6" fill="#1B1748" opacity=".14"/>' +
+  '<g class="legL"><path d="M107 206H122L120 236H109Z" fill="#F1E8DC"/><path d="M101 241Q101 233 110 233H122V243H103Z" fill="#C2457A"/></g>' +
+  '<g class="legR"><path d="M127 206H142L140 236H129Z" fill="#E4D9CA"/><path d="M127 233H140Q149 233 149 241L147 243H127Z" fill="#C2457A"/></g>' +
+  '<g class="torso"><path d="M98 142Q86 160 88 188" fill="none" stroke="#F0AE33" stroke-width="13" stroke-linecap="round"/><circle cx="88" cy="192" r="7" fill="#C98B63"/>' +
+    '<path d="M96 140Q100 130 124 130Q148 130 152 140L162 212H86Z" fill="url(#me-k)"/><path d="M86.6 204H161.4L162 212H86Z" fill="#B8436B"/>' +
+    '<g fill="#C97A12" opacity=".55"><circle cx="110" cy="162" r="2"/><circle cx="136" cy="170" r="2"/><circle cx="120" cy="182" r="2"/><circle cx="146" cy="190" r="2"/><circle cx="104" cy="194" r="2"/><circle cx="130" cy="150" r="2"/></g>' +
+    '<path d="M114 130L124 146L134 130Z" fill="#C98B63"/>' +
+    '<path d="M100 134Q116 174 160 196L164 184Q128 166 114 131Z" fill="url(#me-d)"/>' +
+    '<path d="M148 140Q166 146 167 128" fill="none" stroke="#F0AE33" stroke-width="13" stroke-linecap="round"/></g>' +
+  '<rect x="114" y="116" width="20" height="18" rx="6" fill="#AD6F48"/>' +
+  '<g class="head"><circle cx="162" cy="46" r="16" fill="url(#me-h)"/>' +
+    '<ellipse cx="78" cy="90" rx="8" ry="11" fill="#C27F58"/><ellipse cx="170" cy="90" rx="8" ry="11" fill="#C27F58"/>' +
+    '<circle cx="78" cy="104" r="3.2" fill="#F2C14E"/><circle cx="170" cy="104" r="3.2" fill="#F2C14E"/>' +
+    '<ellipse cx="124" cy="82" rx="46" ry="48" fill="url(#me-s)"/>' +
+    '<g class="eyes"><circle cx="106" cy="88" r="14" fill="#fff"/><circle cx="142" cy="88" r="14" fill="#fff"/>' +
+    '<g clip-path="url(#me-ec)"><g class="pup"><circle cx="108" cy="89" r="8.4" fill="#2E2A8C"/><circle cx="108" cy="89" r="5.8" fill="#14113F"/><circle cx="105.6" cy="86.6" r="2.5" fill="#fff"/><circle cx="140" cy="89" r="8.4" fill="#2E2A8C"/><circle cx="140" cy="89" r="5.8" fill="#14113F"/><circle cx="137.6" cy="86.6" r="2.5" fill="#fff"/></g>' +
+    '<g class="lid"><path d="M88 32H160V74H88Z" fill="#D49A72"/><path d="M88 74H160" stroke="#3A2230" stroke-width="2.6"/></g></g></g>' +
+    '<g class="shut"><path d="M93 89Q106 97 119 89M129 89Q142 97 155 89" fill="none" stroke="#3A2230" stroke-width="3" stroke-linecap="round"/></g>' +
+    '<g class="brow"><path d="M92 68Q104 64 117 68M131 68Q144 64 156 68" fill="none" stroke="#1C1222" stroke-width="4" stroke-linecap="round"/></g>' +
+    '<circle cx="124" cy="66" r="2.6" fill="#B0233F"/>' +
+    '<path d="M122 101Q125 104 122 106" fill="none" stroke="#9A6240" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<g class="m-sm"><path d="M115 113Q124 120 133 113" fill="none" stroke="#7A2E24" stroke-width="3.6" stroke-linecap="round"/></g>' +
+    '<g class="m-tk"><path d="M116 111Q124 125 132 111Q124 108 116 111Z" fill="#7A2E24"/></g>' +
+    '<g class="m-fl"><path d="M117 114H131" stroke="#7A2E24" stroke-width="3.6" stroke-linecap="round"/></g>' +
+    '<g class="m-o"><ellipse cx="124" cy="114" rx="4" ry="4.8" fill="#7A2E24"/></g>' +
+    '<ellipse cx="92" cy="107" rx="8" ry="4.5" fill="#FF6F86" opacity=".5"/><ellipse cx="156" cy="107" rx="8" ry="4.5" fill="#FF6F86" opacity=".5"/>' +
+    '<path d="M78 88Q74 32 124 30Q174 32 170 88Q166 62 148 54Q136 50 124 54Q112 50 100 54Q82 62 78 88Z" fill="url(#me-h)"/>' +
+    '<path d="M124 32V52" stroke="#4A3552" stroke-width="2" opacity=".7"/>' +
+    '<g class="strand"><path d="M80 86Q76 102 84 114" fill="none" stroke="#231829" stroke-width="3" stroke-linecap="round"/></g></g>' +
+  '<g class="sweat"><path d="M66 70Q71 79 66 82Q61 79 66 70Z" fill="#9FDBFF" stroke="#fff" stroke-width="1.2"/></g>' +
+  '<g class="fan"><path d="M167 124L172.9 90.5A34 34 0 0 1 198.9 112.4Z" fill="#FF9EC2" stroke="#C2457A" stroke-width="1.6" stroke-linejoin="round"/>' +
+    '<path d="M167 124L182 92M167 124L192 98M167 124L198 105" stroke="#C2457A" stroke-width="1.3" opacity=".8"/>' +
+    '<path d="M173 103A22 22 0 0 1 187 113" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>' +
+    '<circle cx="167" cy="124" r="7.5" fill="#C98B63"/></g>' +
+  '</svg>';
+var PRANAV = '<svg viewBox="50 12 152 240" overflow="visible" aria-hidden="true">' +
+  '<defs><radialGradient id="pr-s" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="#CC9069"/><stop offset="1" stop-color="#A66B45"/></radialGradient>' +
+  '<linearGradient id="pr-t" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD54F"/><stop offset="1" stop-color="#F4A71E"/></linearGradient>' +
+  '<linearGradient id="pr-h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2D2131"/><stop offset="1" stop-color="#140E18"/></linearGradient>' +
+  '<clipPath id="pr-ec"><circle cx="108" cy="88" r="15"/><circle cx="146" cy="88" r="15"/></clipPath></defs>' +
+  '<ellipse cx="126" cy="247" rx="42" ry="6" fill="#1B1748" opacity=".14"/>' +
+  '<g class="legL"><path d="M105 198H125L123 234H107Z" fill="#3E4F8C"/><path d="M99 241Q99 232 108 232H124V243H101Z" fill="#fff"/><rect x="99" y="239" width="25" height="4" rx="2" fill="#41E7AB"/></g>' +
+  '<g class="legR"><path d="M129 198H149L146 234H130Z" fill="#3E4F8C"/><path d="M139 198H149L146 234H141Z" fill="#33437A"/><path d="M130 232H145Q154 232 154 241L152 243H130Z" fill="#fff"/><rect x="130" y="239" width="24" height="4" rx="2" fill="#41E7AB"/></g>' +
+  '<g class="torso"><path d="M150 140Q164 154 162 182" fill="none" stroke="#F4B12E" stroke-width="14" stroke-linecap="round"/><circle cx="162" cy="188" r="7.5" fill="#B87A52"/>' +
+    '<path d="M98 140Q102 130 126 130Q150 130 154 140L158 202H94Z" fill="url(#pr-t)"/><path d="M146 134Q154 138 154 146L158 202H148Z" fill="#E0901A" opacity=".55"/>' +
+    '<path d="M114 131Q126 141 138 131" fill="none" stroke="#E0901A" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M104 136L150 194" stroke="#2C3A86" stroke-width="5" stroke-linecap="round"/>' +
+    '<rect x="140" y="186" width="24" height="17" rx="5" fill="#2C3A86"/><rect x="144" y="190" width="16" height="3" rx="1.5" fill="#41E7AB"/></g>' +
+  '<g class="phone"><path d="M100 140Q86 154 94 170" fill="none" stroke="#F4B12E" stroke-width="14" stroke-linecap="round"/>' +
+    '<rect x="88" y="150" width="14" height="23" rx="3.5" fill="#1B1748"/><rect x="90" y="153" width="10" height="15" rx="2" fill="#7D8CFF"/><circle cx="97" cy="172" r="7.5" fill="#B87A52"/></g>' +
+  '<rect x="116" y="116" width="20" height="18" rx="6" fill="#9C6440"/>' +
+  '<g class="head"><ellipse cx="80" cy="90" rx="8" ry="11" fill="#A66B45"/><ellipse cx="172" cy="90" rx="8" ry="11" fill="#A66B45"/>' +
+    '<ellipse cx="126" cy="82" rx="46" ry="48" fill="url(#pr-s)"/>' +
+    '<circle cx="108" cy="88" r="15" fill="#fff"/><circle cx="146" cy="88" r="15" fill="#fff"/>' +
+    '<g clip-path="url(#pr-ec)"><g class="pup"><circle cx="110" cy="89" r="9" fill="#2E2A8C"/><circle cx="110" cy="89" r="6.2" fill="#14113F"/><circle cx="107.2" cy="86" r="2.8" fill="#fff"/><circle cx="144" cy="89" r="9" fill="#2E2A8C"/><circle cx="144" cy="89" r="6.2" fill="#14113F"/><circle cx="141.2" cy="86" r="2.8" fill="#fff"/></g>' +
+      '<g class="lid"><path d="M88 30H166V73H88Z" fill="#BF825A"/><path d="M88 73H166" stroke="#2A1A22" stroke-width="2.6"/></g></g>' +
+    '<g class="brow"><path d="M91 67Q103 59 119 64M133 64Q149 59 161 67" fill="none" stroke="#140E18" stroke-width="5.5" stroke-linecap="round"/></g>' +
+    '<path d="M124 99Q128 103 124 106" fill="none" stroke="#7E4A2C" stroke-width="2.8" stroke-linecap="round"/>' +
+    '<g class="m-sm"><path d="M115 111Q126 121 137 111" fill="none" stroke="#6E2A20" stroke-width="3.8" stroke-linecap="round"/></g>' +
+    '<g class="m-tk"><path d="M116 109Q126 126 136 109Q126 106 116 109Z" fill="#6E2A20"/><path d="M120 115Q126 119 132 115" fill="none" stroke="#FF8E8E" stroke-width="2.4" stroke-linecap="round"/></g>' +
+    '<g class="m-fl"><path d="M118 113H134" stroke="#6E2A20" stroke-width="3.8" stroke-linecap="round"/></g>' +
+    '<g class="m-o"><ellipse cx="126" cy="113" rx="4.5" ry="5.5" fill="#6E2A20"/></g>' +
+    '<ellipse cx="94" cy="106" rx="7" ry="4" fill="#FF7E8E" opacity=".35"/><ellipse cx="158" cy="106" rx="7" ry="4" fill="#FF7E8E" opacity=".35"/>' +
+    '<path d="M80 88Q70 70 80 56Q76 36 98 30Q108 16 128 22Q148 14 160 28Q180 32 176 54Q184 70 172 88Q170 70 160 62Q148 68 136 60Q122 68 110 62Q96 66 88 70Q82 76 80 88Z" fill="url(#pr-h)"/>' +
+    '<g fill="none" stroke="#4A3B52" stroke-width="2.6" stroke-linecap="round" opacity=".9"><path d="M96 40q6 -6 12 0"/><path d="M118 30q6 -6 12 0"/><path d="M142 32q6 -6 12 0"/><path d="M160 46q6 -4 9 3"/><path d="M84 58q4 -6 10 -2"/></g></g>' +
+  '<g class="sweat"><path d="M174 62Q179 71 174 74Q169 71 174 62Z" fill="#9FDBFF" stroke="#fff" stroke-width="1.2"/></g>' +
+  '</svg>';
+var SETHI = '<svg viewBox="44 16 160 236" overflow="visible" aria-hidden="true">' +
+  '<defs><radialGradient id="se-s" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#DDA682"/><stop offset="1" stop-color="#B97E58"/></radialGradient>' +
+  '<linearGradient id="se-v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9475C"/><stop offset="1" stop-color="#7A2B3C"/></linearGradient>' +
+  '<clipPath id="se-ec"><circle cx="106" cy="92" r="13"/><circle cx="142" cy="92" r="13"/></clipPath></defs>' +
+  '<ellipse cx="124" cy="247" rx="46" ry="6" fill="#1B1748" opacity=".14"/>' +
+  '<g class="legL"><path d="M102 198H123L121 235H105Z" fill="#7A6250"/><path d="M97 241Q97 233 106 233H122V243H99Z" fill="#4A2E22"/></g>' +
+  '<g class="legR"><path d="M127 198H148L144 235H128Z" fill="#7A6250"/><path d="M138 198H148L144 235H139Z" fill="#66503F"/><path d="M128 233H142Q151 233 151 241L149 243H128Z" fill="#4A2E22"/></g>' +
+  '<g class="torso"><path d="M150 142Q164 160 160 186" fill="none" stroke="#CFE3F7" stroke-width="14" stroke-linecap="round"/><circle cx="160" cy="191" r="7.5" fill="#C98B63"/>' +
+    '<path d="M94 142Q98 130 124 130Q150 130 154 142L160 204H88Z" fill="#CFE3F7"/>' +
+    '<path d="M98 140Q110 132 118 134L124 168L130 134Q138 132 150 140L156 204H92Z" fill="url(#se-v)"/>' +
+    '<circle cx="124" cy="178" r="2.2" fill="#F2C14E"/><circle cx="124" cy="190" r="2.2" fill="#F2C14E"/>' +
+    '<path d="M116 132L124 146L132 132" fill="none" stroke="#9FBFE0" stroke-width="2.4" stroke-linejoin="round"/>' +
+    '<path d="M84 152L108 184" stroke="#F4F1E6" stroke-width="11" stroke-linecap="round"/><path d="M86 157L105 182M90 152L109 177" stroke="#B9B4A2" stroke-width="1.4" opacity=".8"/>' +
+    '<path d="M98 142Q86 158 92 182" fill="none" stroke="#CFE3F7" stroke-width="14" stroke-linecap="round"/><circle cx="93" cy="186" r="7.5" fill="#C98B63"/></g>' +
+  '<rect x="114" y="116" width="20" height="18" rx="6" fill="#A86B44"/>' +
+  '<g class="head"><ellipse cx="78" cy="92" rx="10" ry="13" fill="#B97E58"/><ellipse cx="170" cy="92" rx="10" ry="13" fill="#B97E58"/>' +
+    '<ellipse cx="124" cy="84" rx="46" ry="48" fill="url(#se-s)"/>' +
+    '<ellipse cx="108" cy="52" rx="14" ry="7" fill="#fff" opacity=".35" transform="rotate(-18 108 52)"/>' +
+    '<path d="M79 92Q74 70 86 60Q84 76 90 90Z" fill="#EEF0F6"/><path d="M169 92Q174 70 162 60Q164 76 158 90Z" fill="#EEF0F6"/>' +
+    '<circle cx="106" cy="92" r="13" fill="#fff"/><circle cx="142" cy="92" r="13" fill="#fff"/>' +
+    '<g clip-path="url(#se-ec)"><g class="pup"><circle cx="108" cy="93" r="7.6" fill="#2E2A8C"/><circle cx="108" cy="93" r="5.2" fill="#14113F"/><circle cx="105.6" cy="90.6" r="2.4" fill="#fff"/><circle cx="140" cy="93" r="7.6" fill="#2E2A8C"/><circle cx="140" cy="93" r="5.2" fill="#14113F"/><circle cx="137.6" cy="90.6" r="2.4" fill="#fff"/></g>' +
+      '<g class="lid"><path d="M88 36H160V79H88Z" fill="#CC9370"/><path d="M88 79H160" stroke="#4A2E22" stroke-width="2.4"/></g></g>' +
+    '<g class="brow"><path d="M90 75Q102 66 117 72M131 72Q146 66 158 75" fill="none" stroke="#F1F2F7" stroke-width="6.5" stroke-linecap="round"/><path d="M90 75Q102 66 117 72M131 72Q146 66 158 75" fill="none" stroke="#C3C7D6" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></g>' +
+    '<path d="M120 98Q128 106 121 110" fill="none" stroke="#8E5534" stroke-width="3" stroke-linecap="round"/>' +
+    '<g class="m-sm"><path d="M117 122Q124 127 131 122" fill="none" stroke="#6E2A20" stroke-width="3.2" stroke-linecap="round"/></g>' +
+    '<g class="m-tk"><ellipse cx="124" cy="123" rx="6" ry="5" fill="#6E2A20"/></g>' +
+    '<g class="m-fl"><path d="M118 123H130" stroke="#6E2A20" stroke-width="3.2" stroke-linecap="round"/></g>' +
+    '<g class="m-o"><ellipse cx="124" cy="123" rx="3.6" ry="4.4" fill="#6E2A20"/></g>' +
+    '<g class="stache"><path d="M102 116Q110 106 123 112Q136 106 146 116Q140 124 124 118Q108 124 102 116Z" fill="#F4F4F8" stroke="#C9CCD8" stroke-width="1.4"/></g>' +
+    '<ellipse cx="92" cy="108" rx="7" ry="4" fill="#FF7E8E" opacity=".35"/><ellipse cx="156" cy="108" rx="7" ry="4" fill="#FF7E8E" opacity=".35"/></g>' +
+  '<g class="sweat"><path d="M170 66Q175 75 170 78Q165 75 170 66Z" fill="#9FDBFF" stroke="#fff" stroke-width="1.2"/></g>' +
+  '</svg>';
+var IRIS = '<svg viewBox="10 4 250 230" aria-hidden="true"><defs><linearGradient id="ir1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E2AC78"/><stop offset="1" stop-color="#B07142"/></linearGradient><linearGradient id="ir2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C3B5FF"/><stop offset="1" stop-color="#8E78FF"/></linearGradient><linearGradient id="ir3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E2775"/><stop offset="1" stop-color="#17134A"/></linearGradient><linearGradient id="ir4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F5FF"/><stop offset="1" stop-color="#C9CFFF"/></linearGradient><linearGradient id="ir5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4B3DB0"/><stop offset="1" stop-color="#7B66F0"/></linearGradient><clipPath id="irL"><rect x="40" y="86" width="76" height="62" rx="26"/></clipPath><clipPath id="irR"><rect x="144" y="86" width="76" height="62" rx="26"/></clipPath></defs><ellipse cx="130" cy="228" rx="100" ry="7" fill="#1B1748" opacity=".14"/><path d="M20 168V112Q20 58 80 58H180Q240 58 240 112V168Z" fill="url(#ir1)"/><path d="M30 168V114Q30 67 82 67H178Q230 67 230 114V168Z" fill="url(#ir2)"/><path d="M58 78Q130 66 202 78" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".35"/><path d="M24 160Q130 140 236 160Q130 180 24 160Z" fill="url(#ir5)"/><rect x="20" y="94" width="14" height="14" rx="5" fill="#17134A"/><rect x="226" y="94" width="14" height="14" rx="5" fill="#17134A"/><rect x="30" y="76" width="96" height="82" rx="34" fill="url(#ir3)"/><rect x="134" y="76" width="96" height="82" rx="34" fill="url(#ir3)"/><path d="M122 99Q130 89 138 99V109Q130 101 122 109Z" fill="#17134A"/><rect x="40" y="86" width="76" height="62" rx="26" fill="url(#ir4)"/><rect x="144" y="86" width="76" height="62" rx="26" fill="url(#ir4)"/><g clip-path="url(#irL)"><path d="M100 86H111L79 148H68Z" fill="#fff" opacity=".6"/></g><g clip-path="url(#irR)"><path d="M204 86H215L183 148H172Z" fill="#fff" opacity=".6"/></g><circle cx="78" cy="121" r="18" fill="#fff"/><circle cx="81" cy="122" r="11" fill="#2E2A8C"/><circle cx="81" cy="122" r="7.7" fill="#14113F"/><circle cx="77" cy="117.8" r="3.8" fill="#fff"/><circle cx="182" cy="121" r="18" fill="#fff"/><circle cx="185" cy="122" r="11" fill="#2E2A8C"/><circle cx="185" cy="122" r="7.7" fill="#14113F"/><circle cx="181" cy="117.8" r="3.8" fill="#fff"/><path d="M62 98Q74 91 90 95" fill="none" stroke="#1B1748" stroke-width="5" stroke-linecap="round"/><path d="M170 95Q186 91 198 98" fill="none" stroke="#1B1748" stroke-width="5" stroke-linecap="round"/><path d="M118 113Q130 128 142 113" fill="#17134A"/><ellipse cx="54" cy="139" rx="6.5" ry="3.8" fill="#FF8FB8" opacity=".8"/><ellipse cx="206" cy="139" rx="6.5" ry="3.8" fill="#FF8FB8" opacity=".8"/><path d="M22 160Q130 180 238 160L234 192Q230 224 196 226H64Q30 224 26 192Z" fill="url(#ir1)"/><path d="M24 160Q130 180 236 160" fill="none" stroke="#EDC497" stroke-width="6" stroke-linecap="round"/><path d="M40 180Q130 198 220 180" fill="none" stroke="#8E5530" stroke-width="2" stroke-dasharray="5 5" stroke-linecap="round" opacity=".45"/><rect x="118" y="182" width="24" height="12" rx="5" fill="#8E5530" opacity=".6"/><g class="spk"><path d="M232 14L236 26L248 30L236 34L232 46L228 34L216 30L228 26Z" fill="#5FE3FF"/><path d="M28 18L31 27L40 30L31 33L28 42L25 33L16 30L25 27Z" fill="#FFD45F"/><circle cx="208" cy="20" r="4" fill="#B9A8FF"/><circle cx="250" cy="58" r="3" fill="#B9A8FF"/></g></svg>';
+var MATE = '<svg viewBox="0 0 80 96" aria-hidden="true">' +
+  '<path d="M8 96Q10 70 38 68Q66 70 68 96Z" fill="#2C3A86"/><path d="M30 68L38 80L46 68Z" fill="#C98B63"/>' +
+  '<rect x="32" y="56" width="12" height="14" rx="4" fill="#A86B44"/><circle cx="42" cy="8" r="9" fill="#2A2033"/>' +
+  '<ellipse cx="18" cy="40" rx="5" ry="7" fill="#B97A51"/><ellipse cx="62" cy="40" rx="5" ry="7" fill="#B97A51"/>' +
+  '<ellipse cx="40" cy="38" rx="23" ry="24" fill="#D49A72"/>' +
+  '<path d="M17 38Q15 12 40 12Q65 12 63 38Q58 24 48 21Q38 26 28 22Q20 28 17 38Z" fill="#2A2033"/>' +
+  '<circle cx="31" cy="41" r="7" fill="#fff"/><circle cx="49" cy="41" r="7" fill="#fff"/><circle cx="29.5" cy="42" r="4" fill="#14113F"/><circle cx="47.5" cy="42" r="4" fill="#14113F"/><circle cx="28.5" cy="40.5" r="1.4" fill="#fff"/><circle cx="46.5" cy="40.5" r="1.4" fill="#fff"/>' +
+  '<path d="M32 52Q40 58 48 52" fill="none" stroke="#7A2E24" stroke-width="2.6" stroke-linecap="round"/>' +
+  '<g class="thumb"><circle cx="8" cy="70" r="8" fill="#D49A72"/><rect x="4" y="53" width="7" height="15" rx="3.5" fill="#D49A72"/></g></svg>';
+var HAND = '<svg viewBox="0 0 64 80" aria-hidden="true">' +
+  '<path d="M20 8Q20 2 25.5 2Q31 2 31 8V33L33 31Q37 28 40.5 31L41 32Q45 29 48.5 32.5L49 34Q53 32 56 35.5Q58 38 58 42V56Q58 72 42 76H33Q24 76 18 68L7 51Q4 46 8 43Q12 40 16 44L20 49Z" fill="#fff" fill-opacity=".95" stroke="#3A2FA8" stroke-width="2.8" stroke-linejoin="round"/>' +
+  '<path d="M31 33V44M40.5 31V44M49 34V45" stroke="#3A2FA8" stroke-width="2.2" stroke-linecap="round" opacity=".5"/>' +
+  '<path d="M23 9Q23.5 6 26 5.4" stroke="#C9C1FF" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>';
+var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.2l-6 3.4 1.3-6.7-5-4.7 6.8-.8z" fill="#C9C1FF" stroke="#3A2FA8" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+var STAR_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2l2.9 6.2 6.8.8-5 4.7 1.3 6.7L12 17.2l-6 3.4 1.3-6.7-5-4.7 6.8-.8z" fill="#FFC83D" stroke="#3A2FA8" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+var IC_SND_ON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9q1.8 3 0 6M18.5 6.5q3.6 5.5 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+var IC_SND_OFF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M16 9.5l5 5M21 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+var IC_HELP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9.2Q9 6 12 6Q15 6 15 8.8Q15 10.6 13 11.6Q12 12.2 12 13.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.6" fill="currentColor"/></svg>';
+var IC_CLOSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
+var IC_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="#fff"/></svg>';
+var IC_DOOR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V5.5Q5 4 6.5 4H14M5 20H19M14 4V20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 12H20M17 9l3 3-3 3" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+/* Anjali wears a watch here (she checks it when you make her wait) */
+ANJALI = ANJALI.replace('<rect x="92" y="196" width="64" height="6"', '<g class="watch"><rect x="83" y="180.5" width="14" height="6" rx="2.5" fill="#3A2FA8"/><circle cx="90" cy="183.5" r="3.3" fill="#FFF6DC" stroke="#3A2FA8" stroke-width="1.4"/></g><rect x="92" y="196" width="64" height="6"');
+/* Iris gets lashes to bat and lids to blink with */
+var IRIS_X = IRIS.replace('<g class="spk">',
+  '<g class="lash" fill="none" stroke="#1B1748" stroke-width="4.2" stroke-linecap="round"><path d="M63 107L56 100M78 102.5V94M93 107L100 100M167 107L160 100M182 102.5V94M197 107L204 100"/></g>' +
+  '<g class="ilid"><ellipse cx="78" cy="121" rx="19.5" ry="19.5" fill="#D6DCFF"/><ellipse cx="182" cy="121" rx="19.5" ry="19.5" fill="#D6DCFF"/><path d="M58.5 139.5Q78 146 97.5 139.5M162.5 139.5Q182 146 201.5 139.5" fill="none" stroke="#1B1748" stroke-width="3.6" stroke-linecap="round"/></g>' +
+  '<g class="spk">');
+
+/* the back of every card is a tiny Archie: awning, deadpan eye-lights, warm doorway */
+function backSvg(u) {
+  var sc = ''; for (var k = 0; k < 8; k++) sc += '<circle cx="' + (4.25 + k * 8.5) + '" cy="15" r="4.25" fill="#8F7BFA"/>';
+  return '<svg viewBox="0 0 68 118" aria-hidden="true"><defs>' +
+    '<linearGradient id="bkA' + u + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D6CDFF"/><stop offset="1" stop-color="#A592FF"/></linearGradient>' +
+    '<linearGradient id="bkD' + u + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFEFC2"/><stop offset="1" stop-color="#FFC66E"/></linearGradient>' +
+    '<radialGradient id="bkG' + u + '" cx="50%" cy="60%" r="62%"><stop offset="0" stop-color="#7A6BF2"/><stop offset="1" stop-color="#5141CF"/></radialGradient>' +
+    '<clipPath id="bkE' + u + '"><ellipse cx="25" cy="44" rx="7" ry="8"/><ellipse cx="43" cy="44" rx="7" ry="8"/></clipPath></defs>' +
+    '<rect width="68" height="118" rx="10" fill="url(#bkG' + u + ')"/>' +
+    '<rect x="4.5" y="21" width="59" height="92.5" rx="7" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.5"/>' +
+    '<rect x="0" y="0" width="68" height="15" fill="url(#bkA' + u + ')"/><rect x="9" y="3" width="16" height="2.4" rx="1.2" fill="#fff" opacity=".5"/>' + sc +
+    '<ellipse cx="25" cy="44" rx="7" ry="8" fill="#fff"/><ellipse cx="43" cy="44" rx="7" ry="8" fill="#fff"/>' +
+    '<g clip-path="url(#bkE' + u + ')"><g class="bp"><circle cx="26" cy="45.5" r="3.7" fill="#1B1748"/><circle cx="44" cy="45.5" r="3.7" fill="#1B1748"/><circle cx="24.9" cy="44.2" r="1.3" fill="#fff"/><circle cx="42.9" cy="44.2" r="1.3" fill="#fff"/></g>' +
+    '<g class="bl"><rect x="16" y="28" width="36" height="13" fill="#B7A8FF"/><path d="M16 41H52" stroke="#3A2FA8" stroke-width="1.6"/></g></g>' +
+    '<ellipse cx="16" cy="58" rx="3.6" ry="2" fill="#FF8FB8" opacity=".55"/><ellipse cx="52" cy="58" rx="3.6" ry="2" fill="#FF8FB8" opacity=".55"/>' +
+    '<path d="M30 59Q34 62.5 38 59" fill="none" stroke="#1B1748" stroke-width="2" stroke-linecap="round"/>' +
+    '<path d="M18 104V82A16 13 0 0 1 50 82V104Z" fill="#EDEAFF"/><path d="M21.5 104V83A12.5 10 0 0 1 46.5 83V104Z" fill="url(#bkD' + u + ')"/><path d="M34 73V104" stroke="#EDEAFF" stroke-width="2"/>' +
+    '<rect x="13" y="103" width="42" height="5" rx="2.5" fill="#3A2FA8"/>' +
+    '<path d="M57 25l1.2 2.8 2.8 1.2-2.8 1.2-1.2 2.8-1.2-2.8-2.8-1.2 2.8-1.2z" fill="#fff" opacity=".55"/><path d="M10 88l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z" fill="#fff" opacity=".4"/></svg>';
+}
+
+/* picture bubbles on the shopper cards (no words) */
+var BUB_IC = {
+  anjali: '<svg viewBox="0 0 40 28" aria-hidden="true"><rect x="9" y="3" width="22" height="15" rx="2.5" fill="#5B4BDB"/><rect x="11.5" y="5.5" width="17" height="10" rx="1" fill="#C9C1FF"/><path d="M4 19.5H36L33.5 24H6.5Z" fill="#3A2FA8"/></svg>',
+  /* Mr Sethi: a shopping bag strolling between two shelves (just looking). No eye, no palm, no hourglass: it shares nothing with a move card */
+  sethi: '<svg viewBox="0 0 40 28" aria-hidden="true"><g fill="#C9C1FF" stroke="#3A2FA8" stroke-width="1.8" stroke-linejoin="round"><rect x="1.5" y="3" width="7.5" height="22.5" rx="1.4"/><rect x="31" y="3" width="7.5" height="22.5" rx="1.4"/></g>' +
+    '<path d="M1.5 10.5H9M1.5 18H9M31 10.5H38.5M31 18H38.5" stroke="#3A2FA8" stroke-width="1.6"/><g fill="#FFB547"><rect x="3.3" y="6" width="3.6" height="3.4" rx=".6"/><rect x="33" y="13.5" width="3.6" height="3.4" rx=".6"/></g>' +
+    '<path d="M17 9.5V7.6Q17 4.4 20 4.4Q23 4.4 23 7.6V9.5" fill="none" stroke="#3A2FA8" stroke-width="2" stroke-linecap="round"/><path d="M14 9.2H26L25 19.6Q25 20.6 24 20.6H16Q15 20.6 15 19.6Z" fill="#5B4BDB"/><path d="M17.5 12.4H22.5" stroke="#C9C1FF" stroke-width="1.5" stroke-linecap="round"/>' +
+    '<path d="M11.5 25.6Q15.5 21.8 20 24.6Q24.5 27.2 28.5 23.4" fill="none" stroke="#3A2FA8" stroke-width="2" stroke-linecap="round" stroke-dasharray=".1 3.2"/></svg>',
+  /* Meera: the laptop desk with its chair pushed back and empty (nobody there to help). No person shape anywhere */
+  meera: '<svg viewBox="0 0 40 28" aria-hidden="true"><rect x="21" y="16.4" width="17.5" height="3" rx="1.5" fill="#3A2FA8"/><path d="M23.6 19.2V27M35.9 19.2V27" stroke="#3A2FA8" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<rect x="25.2" y="9.6" width="9.6" height="6" rx="1.2" fill="#5B4BDB"/><rect x="26.5" y="10.9" width="7" height="3.4" rx=".6" fill="#C9C1FF"/><rect x="23.9" y="15" width="12.2" height="1.6" rx=".8" fill="#5B4BDB"/>' +
+    '<g transform="rotate(-9 10 26)"><rect x="3.4" y="2.6" width="5.6" height="12.4" rx="2.6" fill="#C9C1FF" stroke="#3A2FA8" stroke-width="2.3"/><rect x="3.6" y="14.8" width="13.4" height="3.2" rx="1.6" fill="#3A2FA8"/>' +
+    '<path d="M10.3 18V23.2M4.6 23.4H16" stroke="#3A2FA8" stroke-width="2.4" stroke-linecap="round"/><circle cx="5" cy="25.6" r="1.5" fill="#3A2FA8"/><circle cx="15.6" cy="25.6" r="1.5" fill="#3A2FA8"/></g></svg>',
+  /* Pranav: he is already talking with another promoter (navy uniform), a ... between them */
+  pranav: '<svg viewBox="0 0 40 28" aria-hidden="true"><path d="M2 28Q2 19.5 10.5 19.5Q19 19.5 19 28Z" fill="#F4B12E"/><circle cx="10.5" cy="13.4" r="5.4" fill="#A66B45"/><path d="M5.1 13Q5 7.6 10.5 7.6Q16 7.6 15.9 13Q14 10.2 10.5 10.6Q7 10.2 5.1 13Z" fill="#2D2131"/><circle cx="13" cy="14" r="1.1" fill="#14113F"/>' +
+    '<path d="M21 28Q21 19.5 29.5 19.5Q38 19.5 38 28Z" fill="#2C3A86"/><path d="M27 19.6L29.5 23L32 19.6Z" fill="#D49A72"/><circle cx="29.5" cy="13.4" r="5.4" fill="#D49A72"/><path d="M24.1 13Q24 7.6 29.5 7.6Q35 7.6 34.9 13Q33 10.2 29.5 10.6Q26 10.2 24.1 13Z" fill="#2A2033"/><circle cx="27" cy="14" r="1.1" fill="#14113F"/>' +
+    '<path d="M13.2 1H26.8Q29 1 29 3.2V6.4Q29 8.6 26.8 8.6H23L20 11L19.6 8.6H13.2Q11 8.6 11 6.4V3.2Q11 1 13.2 1Z" fill="#fff" stroke="#3A2FA8" stroke-width="1.3" stroke-linejoin="round"/><g fill="#3A2FA8"><circle cx="16" cy="4.8" r="1.35"/><circle cx="20" cy="4.8" r="1.35"/><circle cx="24" cy="4.8" r="1.35"/></g></svg>',
+  /* Dadi: she has just come through the door (warm doorway, arrow in) and is not sure where to go (a small ?) */
+  dadi: '<svg viewBox="0 0 40 28" aria-hidden="true"><path d="M3 26.5V5.6Q3 2.6 6 2.6H15Q18 2.6 18 5.6V26.5Z" fill="#FFD27A" stroke="#3A2FA8" stroke-width="2.2" stroke-linejoin="round"/><path d="M1 26.6H20" stroke="#3A2FA8" stroke-width="2.2" stroke-linecap="round"/>' +
+    '<path d="M8.5 17H25.5" stroke="#5B4BDB" stroke-width="3.2" stroke-linecap="round"/><path d="M21.5 12.4L26.4 17L21.5 21.6" fill="none" stroke="#5B4BDB" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M29.6 6.6Q29.6 2.6 33.4 2.6Q37.2 2.6 37.2 6.2Q37.2 8.4 35 9.4Q33.8 10 33.8 11.8" fill="none" stroke="#3A2FA8" stroke-width="2.4" stroke-linecap="round"/><circle cx="33.8" cy="15.4" r="1.6" fill="#3A2FA8"/></svg>'
+};
+/* move cards: one bold icon each (the .ani group is what moves) */
+var MOVE_IC = {
+  walk: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><rect x="2.5" y="21.5" width="7" height="10" rx="2" fill="#C9C1FF"/><path d="M8.5 23H30.5Q34.5 23 34.5 26Q34.5 29 30.5 29H8.5Z" fill="#fff"/>' +
+    '<path d="M13 23.6L17.6 18.6Q19.6 16.6 21.1 18.6Q22.1 20 20.6 21.8L19.2 23.6Z" fill="#fff"/><path d="M21 26H31" stroke="#C9C1FF" stroke-width="1.5" stroke-linecap="round"/></g>' +
+    '<g class="arw"><path d="M9 14.5Q20.5 4 31.5 11.5" fill="none" stroke="#FFD27A" stroke-width="2.6" stroke-dasharray=".5 5" stroke-linecap="round"/><path d="M28.4 7.6L32.4 11.6L27.4 13.3" fill="none" stroke="#FFD27A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g></svg>',
+  space: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><path d="M11 6.5H29M11 33.5H29" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<path d="M13.5 7.5Q13.5 16 20 20Q13.5 24 13.5 32.5H26.5Q26.5 24 20 20Q26.5 16 26.5 7.5Z" fill="#fff" fill-opacity=".18" stroke="#fff" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<path d="M16.4 11.5H23.6Q22.6 16.2 20 18.2Q17.4 16.2 16.4 11.5Z" fill="#FFD27A"/><path d="M15.6 31.4Q16.2 26.6 20 25.2Q23.8 26.6 24.4 31.4Z" fill="#FFD27A"/><path d="M20 18.8V24.6" stroke="#FFD27A" stroke-width="1.4" stroke-dasharray="1.4 1.6"/></g></svg>',
+  help: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><path d="M7.5 30H32.5" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><path d="M10 28Q10 16 20 16Q30 16 30 28Z" fill="#fff"/>' +
+    '<path d="M13.6 24.5Q14 19.6 18 18.6" fill="none" stroke="#C9C1FF" stroke-width="1.8" stroke-linecap="round"/><rect x="18.2" y="11.5" width="3.6" height="5" rx="1.4" fill="#fff"/><circle cx="20" cy="10.5" r="2.7" fill="#FFD27A"/></g>' +
+    '<g class="rw" fill="none" stroke="#FFD27A" stroke-width="2.3" stroke-linecap="round"><path d="M5.2 14.5Q2.8 19.5 5.2 24.5M34.8 14.5Q37.2 19.5 34.8 24.5"/></g></svg>',
+  observe: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><path d="M3.5 20Q20 5 36.5 20Q20 35 3.5 20Z" fill="#fff"/><g class="ep"><circle cx="20" cy="20" r="7.4" fill="#3A2FA8"/><circle cx="20" cy="20" r="3.5" fill="#14113F"/><circle cx="17.5" cy="17.5" r="1.9" fill="#fff"/></g></g></svg>',
+  ask: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><path d="M6 9.5Q6 5.5 10 5.5H30Q34 5.5 34 9.5V23.5Q34 27.5 30 27.5H17.5L11 33.5V27.5H10Q6 27.5 6 23.5Z" fill="#fff"/>' +
+    '<path d="M15.8 13.2Q15.8 9.2 20 9.2Q24.2 9.2 24.2 12.6Q24.2 15 21.6 16.2Q20.2 17 20.2 19.2" fill="none" stroke="#5B4BDB" stroke-width="2.9" stroke-linecap="round"/><circle cx="20.2" cy="23.2" r="1.9" fill="#5B4BDB"/></g></svg>',
+  point: '<svg viewBox="0 0 40 40" aria-hidden="true"><g class="ani"><rect x="2.5" y="15.5" width="7.5" height="13" rx="2" fill="#8F7BFA"/>' +
+    '<path d="M10 18Q10 15.5 12.5 15.5H33.5Q36.5 15.5 36.5 18.2Q36.5 21 33.5 21H21.5V27Q21.5 30.5 18 30.5H13Q10 30.5 10 27.5Z" fill="#fff"/>' +
+    '<path d="M14.5 15.6Q14.5 11.6 17.6 12.2Q20 12.7 19.6 15.6Z" fill="#fff"/><path d="M13 22H19M13 26H19" stroke="#8F7BFA" stroke-width="1.6" stroke-linecap="round"/></g>' +
+    '<g class="ml" stroke="#FFD27A" stroke-width="2" stroke-linecap="round"><path d="M37.5 10.5l2.6-2.6M38.6 18.2h3.6M37.5 25.9l2.6 2.6"/></g></svg>'
+};
+var LAMP = '<svg viewBox="0 0 18 28" aria-hidden="true"><path d="M9 0V7" stroke="#6E62C9" stroke-width="1.6"/><circle class="halo" cx="9" cy="17" r="8.5" fill="#FFB547" opacity=".35"/>' +
+  '<circle class="bulb" cx="9" cy="16.5" r="4.4" fill="#FFB547"/><path d="M2.5 14Q2.5 7 9 7Q15.5 7 15.5 14Z" fill="#fff" stroke="#3A2FA8" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+var IC_FLIPS = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="1" width="9" height="12" rx="2" fill="#C9C1FF" transform="rotate(12 9.5 7)"/><rect x="2" y="3" width="9" height="12" rx="2" fill="#5B4BDB"/></svg>';
+var IC_PAIRS = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="8" height="11" rx="2" fill="#5B4BDB" transform="rotate(-10 5.5 8)"/><rect x="6.5" y="2.5" width="8" height="11" rx="2" fill="#FFB547" transform="rotate(10 10.5 8)"/></svg>';
+var IC_CLOCK = '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="#5B4BDB" stroke-width="1.8"/><path d="M8 4.5V8L10.5 9.5" fill="none" stroke="#5B4BDB" stroke-width="1.8" stroke-linecap="round"/></svg>';
+var IC_NEXT = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4L13 10L7 16" fill="none" stroke="#5B4BDB" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var TICK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="#0F0A6C" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var XMARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7L17 17M17 7L7 17" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg>';
+var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5C6 16.6 2.5 13.2 2.5 9.2 2.5 6.4 4.7 4.3 7.4 4.3c1.9 0 3.6 1 4.6 2.6 1-1.6 2.7-2.6 4.6-2.6 2.7 0 4.9 2.1 4.9 4.9 0 4-3.5 7.4-9.5 11.3z" fill="#F07AA0"/></svg>';
+var EFX_HTML =
+  '<div class="ef e-clock"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#3A2FA8" stroke-width="2"/><path class="ch" d="M12 12V6" stroke="#3A2FA8" stroke-width="2.2" stroke-linecap="round"/><path d="M12 12H15.5" stroke="#3A2FA8" stroke-width="2.2" stroke-linecap="round"/></svg></div>' +
+  '<div class="ef e-zz"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="#5B4BDB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path class="z1" d="M3 13H9L3 20H9"/><path class="z2" d="M13 3H20L13 11H20"/></g></svg></div>' +
+  '<div class="ef e-swirl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a1.4 1.4 0 1 1 1.6 1.4a3.6 3.6 0 1 1 2.6 -5a6 6 0 1 1 -9.6 -1" fill="none" stroke="#5B4BDB" stroke-width="2.2" stroke-linecap="round"/></svg></div>' +
+  /* 'repeat': an arrow back at the bubble; 'brow': a question mark; 'wag': a wagging finger */
+  '<div class="ef e-arw"><svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 19.5L6.5 6.5M6.5 15.5V6.5H15.5" stroke="#fff" stroke-width="7"/><path d="M19.5 19.5L6.5 6.5M6.5 15.5V6.5H15.5" stroke="#FF6B5E" stroke-width="3.4"/></g></svg></div>' +
+  '<div class="ef e-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#3A2FA8" stroke-width="2"/><path d="M9 9.4Q9 6 12 6Q15 6 15 8.9Q15 10.8 13 11.8Q12 12.4 12 14.2" fill="none" stroke="#5B4BDB" stroke-width="2.7" stroke-linecap="round"/><circle cx="12" cy="17.7" r="1.7" fill="#5B4BDB"/></svg></div>' +
+  '<div class="ef e-wag"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#3A2FA8" stroke-width="2"/><g class="fw"><rect x="10.3" y="3.8" width="3.6" height="10" rx="1.8" fill="#C98B63"/><path d="M8.2 12.6Q8.2 10.4 10.4 10.4H14.6Q16.8 10.4 16.8 12.6V16.6Q16.8 19.4 14 19.4H11Q8.2 19.4 8.2 16.6Z" fill="#C98B63"/><path d="M10.6 14.6H14.4" stroke="#A86B44" stroke-width="1.2" stroke-linecap="round"/></g></svg></div>' +
+  '<div class="ef e-loop"><svg viewBox="0 0 68 30" aria-hidden="true"><ellipse cx="34" cy="15" rx="28" ry="10" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-dasharray="3 3.4"/><path d="M53 5.5l6.5 1.8-3.4 5.4" fill="none" stroke="#FF6B5E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+  '<div class="ef e-crowd l">' + MATE + '</div><div class="ef e-crowd r">' + MATE + '</div>' +
+  '<div class="ef e-hearts">' + HEART + HEART + HEART + '</div>';
+
+/* =====================================================================
+   CAST  (the shoppers on the cards: an upper-body crop of the full figures)
+   ===================================================================== */
+var FIG_H = 80;
+var CAST = {
+  anjali: { svg: ANJALI, sw: [170, 66], crop: [62, 20, 124, 184], dx: 2, lidFlat: 14, lidShut: 33, lidRest: 0, look: 3, neck: [124, 128] },
+  sethi:  { svg: SETHI, sw: [170, 72], crop: [62, 28, 124, 184], dx: 4, lidFlat: 12, lidShut: 28, lidRest: 3, look: 2.6, neck: [124, 126] },
+  meera:  { svg: MEERA, sw: [66, 76], crop: [58, 22, 142, 186], dx: 2, lidFlat: 13, lidShut: 30, lidRest: 5, look: 3, neck: [124, 126] },
+  pranav: { svg: PRANAV, sw: [174, 68], crop: [64, 12, 124, 190], dx: -7, lidFlat: 14, lidShut: 32, lidRest: 0, look: 3.2, neck: [126, 126] },
+  dadi:   { svg: DADI, sw: [100, 60], crop: [24, 12, 142, 192], dx: 3, lidFlat: 12, lidShut: 27, lidRest: 0, look: 2.6, neck: [100, 122] }
+};
+
+/* =====================================================================
+   BUILD THE DOM
+   ===================================================================== */
+var game = document.getElementById('game');
+var live = document.getElementById('live');
+var SLOT = [];
+for (var sr = 0; sr < 2; sr++) for (var sc = 0; sc < 4; sc++) SLOT.push({ x: 12 + sc * 76, y: 52 + sr * 124 });
+var DECK = { x: 126, y: 420 };       /* where cards are dealt from (top-left of a card, below the dock) */
+var STACK = { x: 126, y: 114 };      /* the shuffle pile in the middle of the board */
+
+var lampsHTML = '', dotsHTML = '', cardsHTML = '', slotsHTML = '';
+for (var li = 0; li < 3; li++) lampsHTML += '<div class="lamp" style="left:' + (li * 23) + 'px">' + LAMP + '</div>';
+for (var di = 0; di < 6; di++) dotsHTML += '<i style="left:' + (di * 8.2 + (di > 2 ? 4 : 0)).toFixed(1) + 'px"><b></b></i>';
+for (var ci = 0; ci < 8; ci++) cardsHTML += '<button type="button" class="cd" id="cd' + ci + '" style="left:' + SLOT[ci].x + 'px;top:' + SLOT[ci].y + 'px">' +
+  '<div class="cw"><div class="shd"></div><div class="fc bk">' + backSvg('c' + ci) + '</div><div class="fc fr"></div><div class="gl"></div><div class="gl bad"></div></div></button>';
+for (var ti = 0; ti < 3; ti++) slotsHTML += '<div class="tslot" style="left:' + (ti * 100) + 'px"><div class="pchip"></div></div>';
+
+game.innerHTML =
+  '<div class="dock"></div><div class="mat"></div>' +
+  '<div class="dlab" id="dlab"></div>' +
+  '<div class="tray" id="tray" aria-hidden="true">' + slotsHTML + '</div>' +
+  cardsHTML +
+  '<svg class="link" id="link" viewBox="0 0 320 400" aria-hidden="true"><path id="linkP" d="M0 0" fill="none" stroke="#FFB547" stroke-width="3.6" stroke-linecap="round" stroke-dasharray=".5 7.5"/>' +
+    '<g id="linkH"><circle r="9" fill="#fff" opacity=".9"/><g transform="translate(-8 -8.5) scale(.68)"><path d="M12 20.5C6 16.6 2.5 13.2 2.5 9.2 2.5 6.4 4.7 4.3 7.4 4.3c1.9 0 3.6 1 4.6 2.6 1-1.6 2.7-2.6 4.6-2.6 2.7 0 4.9 2.1 4.9 4.9 0 4-3.5 7.4-9.5 11.3z" fill="#F07AA0"/></g></g></svg>' +
+  '<div class="ipop" id="ipop">' + uniq(IRIS_X, 'pop') + '</div>' +
+  '<div class="door l" id="doorL"><span>' + CONTENT.title[0] + '</span><i></i></div><div class="door r" id="doorR"><span>' + CONTENT.title[1] + '</span><i></i></div>' +
+  '<div class="endp" id="endp"><div class="fan" id="eFan"></div>' +
+    '<div class="scorew"><div class="scr" id="eScore"></div><div class="stars" id="eStars"></div><div class="best" id="eBest"></div></div>' +
+    '<div class="stats" id="eStats"></div>' +
+    '<div class="rem"><small>' + CONTENT.end.remember + '</small><p id="eRemTx"></p></div></div>' +
+  '<div class="abw"><div class="ab" id="ab"><span class="av">' + archieSvg('p') + '</span><span class="tx"></span></div></div>' +
+  '<div class="toast" id="toast"><span class="arc">' + archieSvg('t') + '</span><p id="toastTx"></p>' +
+    '<button type="button" class="go" id="tgo" aria-label="Next"><span>' + IC_NEXT + '</span></button><span class="bar"><i id="tbar"></i></span></div>' +
+  '<div class="dcapw"><div class="dcap" id="dcap" aria-hidden="true"><span class="st"><i></i><i></i><i></i></span><span class="tx"></span></div></div>' +
+  '<button type="button" class="big" id="yt">' + IC_PLAY + '<span>' + CONTENT.demo.go + '</span></button>' +
+  '<div class="endb" id="endb"><button type="button" class="sec" id="again">' + CONTENT.end.again + '</button><button type="button" class="pri" id="enter"><span>' + CONTENT.end.enter + '</span>' + IC_DOOR + '</button></div>' +
+  '<div class="can" id="can"><div class="shine"></div>' +
+    '<div class="aeyes" aria-hidden="true"><span class="ae a"><i class="pp"></i><i class="ld"></i></span><span class="ae b"><i class="pp"></i><i class="ld"></i></span></div>' +
+    '<div class="lamps" id="lamps" aria-hidden="true">' + lampsHTML + '</div>' +
+    '<div class="flips" id="flips" aria-hidden="true">' + IC_FLIPS + '<span id="flipN">0</span></div>' +
+    '<div class="dots" id="dots" aria-hidden="true">' + dotsHTML + '</div></div>' +
+  '<svg class="scal" viewBox="0 0 320 10" aria-hidden="true"><path d="' + SCALLOP + '" fill="#8F7BFA"/></svg>' +
+  '<div class="flyd" id="flyd"></div>' +
+  '<div class="hand" id="hand">' + HAND + '</div>' +
+  '<button type="button" class="cbtn" id="hlp" style="left:50px" aria-label="How to play"><span class="chip">' + IC_HELP + '</span></button>' +
+  '<button type="button" class="cbtn" id="snd" style="left:266px" aria-label="Sound" aria-pressed="false"><span class="chip">' + IC_SND_OFF + '</span></button>' +
+  (OPT.close ? '<button type="button" class="cbtn" id="cls" style="left:266px" aria-label="Close game"><span class="chip">' + IC_CLOSE + '</span></button>' : '');
+if (OPT.close) { game.classList.add('withclose'); document.getElementById('snd').style.left = '212px'; }
+
+function $(id) { return document.getElementById(id); }
+function q(sel, root) { return (root || game).querySelector(sel); }
+function qa(sel, root) { return [].slice.call((root || game).querySelectorAll(sel)); }
+
+var D = {
+  dlab: $('dlab'), tray: $('tray'), tslots: qa('.tslot'), chips: qa('.tslot .pchip'), link: $('link'), linkP: $('linkP'), linkH: $('linkH'),
+  ipop: $('ipop'), ipLash: q('#ipop .lash'), ipLid: q('#ipop .ilid'), ipSpk: q('#ipop .spk'),
+  doorL: $('doorL'), doorR: $('doorR'), endp: $('endp'), eFan: $('eFan'), eScore: $('eScore'), eStars: $('eStars'), eBest: $('eBest'), eStats: $('eStats'), eRemTx: $('eRemTx'),
+  ab: $('ab'), abTx: q('#ab .tx'), toast: $('toast'), toastTx: $('toastTx'), tgo: $('tgo'), tbar: $('tbar'),
+  dcap: $('dcap'), dcapTx: q('#dcap .tx'), dcapSt: qa('#dcap .st i'), yt: $('yt'), endb: $('endb'), again: $('again'), enter: $('enter'),
+  can: $('can'), eyeLid: qa('.ae .ld'), eyePup: qa('.ae .pp'), lamps: qa('.lamp'), bulbs: qa('.lamp .bulb'), halos: qa('.lamp .halo'),
+  flips: $('flips'), flipN: $('flipN'), dots: qa('#dots i'), dotsB: qa('#dots i b'),
+  flyd: $('flyd'), hand: $('hand'), hlp: $('hlp'), snd: $('snd'), cls: $('cls')
+};
+
+/* =====================================================================
+   CARDS  (8 buttons at fixed slots; the faces change every grid)
+   ===================================================================== */
+var CARDS = [];
+for (var k8 = 0; k8 < 8; k8++) {
+  var el = $('cd' + k8);
+  CARDS.push({ i: k8, el: el, cw: q('.cw', el), shd: q('.shd', el), bk: q('.bk', el), fr: q('.fr', el), gl: q('.gl', el), gb: q('.gl.bad', el),
+    bkLid: q('.bl', el), bkPup: q('.bp', el), bkBlinkAt: 1 + Math.random() * 5, bkBlinkT: -9,
+    def: null, kind: null, rig: null, ani: null, react: null, ef: null, icon: null, sbub: null,
+    flip: 0, lift: 0, glow: 0, bad: 0, dimV: 1, dx: 0, dy: 0, dr: 0, ds: 1, dO: 0,
+    up: false, matched: false, seen: false, gold: false, pressT: -9, shakeT: -9, wigT: -9, rifT: -9, faceN: 0 });
+}
+function kindOf(c) { return c && c.def ? CONTENT.cards[c.def].kind : null; }
+function nameOf(id) { var d = CONTENT.cards[id]; return d.name || d.label; }
+function faceHTML(id, u) {
+  var d = CONTENT.cards[id];
+  if (d.kind === 'shop') {
+    var c = CAST[id], w = FIG_H * c.crop[2] / c.crop[3];
+    var svg = uniq(c.svg, u).replace(/viewBox="[^"]+"/, 'viewBox="' + c.crop.join(' ') + '"');
+    return '<div class="sbub">' + BUB_IC[id] + '</div>' +
+      '<div class="fig" style="left:' + ((68 - w) / 2 + c.dx).toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;height:' + FIG_H + 'px">' + svg + '</div>' +
+      (id === 'pranav' ? '<div class="mate">' + MATE + '<span class="mtalk"><i></i><i></i><i></i></span></div>' : '') +
+      EFX_HTML + '<span class="tk">' + TICK + '</span>';
+  }
+  var disc = id === 'iris' ? 'lite' : (id === 'point' ? 'deep' : '');
+  var art = id === 'iris' ? '<div class="iris-s">' + uniq(IRIS, u) + '</div>' : MOVE_IC[id];
+  return '<div class="disc ' + disc + '">' + art + '</div><div class="lab">' + d.label + '</div>' +
+    (d.kind === 'trap' ? '<span class="xb">' + XMARK + '</span>' : '<span class="tk">' + TICK + '</span>');
+}
+function rigFor(c, id) {
+  var svg = q('.fig svg', c.fr), g = function (s) { return svg.querySelector(s); };
+  return { name: id, c: CAST[id], wrap: q('.fig', c.fr), svg: svg, seed: Math.random() * 6,
+    p: { head: g('.head'), hb: g('.hb'), pup: g('.pup'), lid: g('.lid'), brow: g('.brow'), sm: g('.m-sm'), tk: g('.m-tk'), fl: g('.m-fl'), o: g('.m-o'), sweat: g('.sweat'),
+      farm: g('.farm'), emph: g('.emph'), browR: g('.browR'), browL: g('.browL'), fan: g('.fan'), shut: g('.shut'), eyes: g('.eyes'), phone: g('.phone'), stache: g('.stache') },
+    st: { lid: CAST[id].lidRest, lk: [0, 0], blinkAt: clock + 1 + Math.random() * 3, blinkT: -9 } };
+}
+function setFace(i, id) {
+  var c = CARDS[i], d = CONTENT.cards[id];
+  c.def = id; c.kind = d.kind; c.faceN += 1;
+  c.fr.className = 'fc fr' + (d.kind === 'trap' ? ' trap' : '');
+  c.fr.innerHTML = faceHTML(id, 'f' + i + 'n' + c.faceN);
+  c.rig = d.kind === 'shop' ? rigFor(c, id) : null;
+  c.icon = q('.ani', c.fr); c.arw = q('.arw path', c.fr); c.rw = q('.rw', c.fr); c.ep = q('.ep', c.fr); c.ml = q('.ml', c.fr); c.irisS = q('.iris-s', c.fr);
+  c.sbub = q('.sbub', c.fr); c.mate = q('.mate', c.fr);
+  c.ef = d.kind === 'shop' ? { clock: q('.e-clock', c.fr), clockH: q('.e-clock .ch', c.fr), zz: q('.e-zz', c.fr), z1: q('.e-zz .z1', c.fr), z2: q('.e-zz .z2', c.fr), swirl: q('.e-swirl', c.fr),
+    loop: q('.e-loop', c.fr), cl: q('.e-crowd.l', c.fr), cr: q('.e-crowd.r', c.fr), hearts: q('.e-hearts', c.fr), hs: qa('.e-hearts svg', c.fr),
+    arw: q('.e-arw', c.fr), qm: q('.e-q', c.fr), wag: q('.e-wag', c.fr), fw: q('.e-wag .fw', c.fr) } : null;
+  if (c.ef) { c.ef.cr.firstChild.style.transform = 'scaleX(-1)'; ['clock', 'zz', 'swirl', 'loop', 'cl', 'cr', 'hearts', 'arw', 'qm', 'wag'].forEach(function (k) { show(c.ef[k], false); }); }
+  c.matched = false; c.up = false; c.seen = false; c.gold = false; c.react = null; c.ani = null; c.flip = 0; c.glow = 0; c.bad = 0; c.lift = 0;
+  c.el.disabled = false; c.el.classList.remove('up'); c.fr.classList.remove('gold');
+  ariaCard(c);
+}
+function ariaCard(c) {
+  var s = c.matched ? CONTENT.say.done + ' ' + CONTENT.cards[c.def].aria : (c.up ? CONTENT.cards[c.def].aria : CONTENT.say.down.replace('{n}', c.i + 1));
+  if (c.el.__al !== s) { c.el.setAttribute('aria-label', s); c.el.__al = s; }
+}
+
+/* =====================================================================
+   CLOCK, TIMERS, TWEENS
+   ===================================================================== */
+var clock = 0, tScale = 1, lastTs = 0, hiddenPause = false;
+var timers = [];
+function at(d, fn) { timers.push({ t: clock + Math.max(0, d), fn: fn, n: timers.length + Math.random() * 1e-6 }); }
+function clearTimers() { timers = []; }
+function runTimers() {
+  for (var guard = 0; guard < 400; guard++) {
+    var bi = -1, bt = Infinity;
+    for (var i = 0; i < timers.length; i++) if (timers[i].t <= clock && timers[i].t < bt) { bt = timers[i].t; bi = i; }
+    if (bi < 0) return;
+    var tm = timers.splice(bi, 1)[0];
+    tm.fn();
+  }
+}
+var tweens = [];
+function tw(o, k, to, dur, ease, delay) {
+  for (var i = tweens.length - 1; i >= 0; i--) if (tweens[i].o === o && tweens[i].k === k) tweens.splice(i, 1);
+  if (!dur && !delay) { o[k] = to; return; }
+  tweens.push({ o: o, k: k, from: null, to: to, t0: clock + (delay || 0), d: dur || .0001, e: ease || E.out });
+}
+function runTweens() {
+  for (var i = tweens.length - 1; i >= 0; i--) {
+    var w = tweens[i]; if (clock < w.t0) continue;
+    if (w.from === null) w.from = w.o[w.k];
+    var u = clamp((clock - w.t0) / w.d); w.o[w.k] = w.from + (w.to - w.from) * w.e(u);
+    if (u >= 1) tweens.splice(i, 1);
+  }
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+var G = { mode: 'boot', phase: 'boot', grid: 0, first: -1, firstSeen: false, flips: 0, gridFlips: [0, 0], slips: [0, 0], knownTraps: 0, misses: {}, pairFlips: {}, matched: 0, pairsDone: 0,
+  returning: null, lineShown: {}, roundN: 0, final: null, sent: [], demoSeen: store.get('demoSeen') === '1', helpOK: false, lastInput: 'pointer', playT: 0, timing: false, hint: false,
+  idleT: 0, demoReturn: null, focus: [], paused: false, tray: [], lastLayout: '' };
+var CAN = { lamp: [1, 1, 1], lampOffT: [-9, -9, -9], dots: [0, 0, 0, 0, 0, 0], dotT: [-9, -9, -9, -9, -9, -9], wigT: -9, lid: .45, lidT: .45, look: [0, 0], blinkAt: 3, blinkT: -9, flipT: -9 };
+var DOOR = { o: 1 };
+var AB = { s: 0 }, DCAP = { s: 0, step: 0 }, YT = { s: 0 }, ENDB = { s: 0 }, ENDP = { s: 0 };
+var TO = { s: 0, on: false, pieces: [], idx: -1, t0: -9, open0: -9, dur: 1, cb: null, token: 0, nudgeT: -9 };
+var CH = { s: [0, 0, 0] };
+var HAND = { o: 0, x: 250, y: 430, press: 0 };
+var LINK = { on: false, t0: -9, a: null, b: null };
+var IPOP = { on: false, t0: -9, sp: 1, x: 0, y: 0, card: null, side: false };
+var FX = { flyT: -9, flyFrom: [0, 0], flyTo: [0, 0] };
+
+/* =====================================================================
+   SOUND  (WebAudio synth, off by default)
+   ===================================================================== */
+var AC = null, MASTER = null, NOISE = null, soundOn = false;
+function audio() {
+  if (!AC) {
+    var C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+    try { AC = new C(); } catch (e) { return null; }
+    MASTER = AC.createGain(); MASTER.gain.value = .5; MASTER.connect(AC.destination);
+    var len = AC.sampleRate; NOISE = AC.createBuffer(1, len, AC.sampleRate);
+    var d = NOISE.getChannelData(0); for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+  if (AC.state === 'suspended' && AC.resume) { try { var pr = AC.resume(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {} }   /* a refused resume must not log errors */
+  return AC;
+}
+function env(g, t0, a, peak, d) { g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(peak, t0 + a); g.gain.exponentialRampToValueAtTime(.0001, t0 + a + d); }
+function osc(type, f0, f1, t0, dur, peak, a) {
+  var o = AC.createOscillator(), g = AC.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t0);
+  if (f1) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur); env(g, t0, a || .005, peak, dur);
+  o.connect(g); g.connect(MASTER); o.start(t0); o.stop(t0 + dur + (a || .005) + .05);
+}
+function nz(t0, dur, peak, type, f, qv, a, f1) {
+  var s = AC.createBufferSource(); s.buffer = NOISE; s.loop = true;
+  var fl = AC.createBiquadFilter(); fl.type = type || 'bandpass'; fl.frequency.setValueAtTime(f || 1000, t0);
+  if (f1) fl.frequency.exponentialRampToValueAtTime(f1, t0 + dur); fl.Q.value = qv || 1;
+  var g = AC.createGain(); env(g, t0, a || .005, peak, dur); s.connect(fl); fl.connect(g); g.connect(MASTER); s.start(t0); s.stop(t0 + dur + (a || .005) + .05);
+}
+var SFX = {
+  pop: function (t) { osc('sine', 640, 260, t, .09, .22); },
+  flip: function (t) { nz(t, .07, .16, 'bandpass', 2600, 1.4, .004, 900); osc('sine', 900, 1500, t + .02, .05, .06); },
+  back: function (t) { nz(t, .06, .1, 'bandpass', 1500, 1.2, .004, 600); },
+  deal: function (t) { nz(t, .04, .12, 'bandpass', 3200, 2, .002, 1400); },
+  riffle: function (t) { for (var i = 0; i < 9; i++) nz(t + i * .035, .03, .1, 'bandpass', 2400 + i * 120, 2, .002); },
+  match: function (t) { osc('sine', 880, 0, t, .14, .18); osc('sine', 1320, 0, t + .09, .3, .18); osc('sine', 1760, 0, t + .2, .5, .08, .004); },
+  nope: function (t) { osc('triangle', 260, 190, t, .14, .1); osc('triangle', 196, 150, t + .1, .18, .1); },
+  boing: function (t) { osc('sine', 220, 520, t, .18, .18); },
+  tada: function (t) { [523, 659, 784, 1046].forEach(function (f, i) { osc('triangle', f, 0, t + i * .06, .3, .1); }); },
+  lamp: function (t) { osc('sine', 900, 280, t, .25, .12); nz(t, .03, .08, 'highpass', 4000, .7); },
+  shhk: function (t) { nz(t, .28, .1, 'bandpass', 1600, 1, .03, 700); },
+  whoosh: function (t) { nz(t, .3, .14, 'bandpass', 500, 1.2, .05, 3000); },
+  tick: function (t) { osc('sine', 1250, 0, t, .06, .12); },
+  star: function (t) { osc('sine', 1046, 1568, t, .2, .14); },
+  step: function (t) { nz(t, .05, .1, 'lowpass', 520, .8); }
+};
+function sfx(n) { if (!soundOn) return; var ac = audio(); if (!ac || !SFX[n]) return; try { SFX[n](ac.currentTime + .01); } catch (e) {} }
+
+/* =====================================================================
+   SMALL ACTIONS
+   ===================================================================== */
+function announce(s) { live.textContent = ''; setTimeout(function () { live.textContent = s; }, 30); }
+function post(msg) {
+  msg.type = 'sahi-jodi';
+  try { G.sent.push(JSON.parse(JSON.stringify(msg))); } catch (e) {}
+  try { if (window.parent && window.parent !== window) window.parent.postMessage(msg, '*'); } catch (e) {}
+}
+function phase(p) { G.phase = p; }
+function popIn(o, d) { o.s = 0; tw(o, 's', 1, d || .3, E.outBackBig); }
+function popOut(o, d) { tw(o, 's', 0, d || .15, E.inn); }
+function archieSay(text, dur) {
+  txt(D.abTx, text); popIn(AB, .3); CAN.wigT = clock; sfx('pop'); announce('Archie: ' + text);
+  if (dur) at(dur, function () { popOut(AB); });
+}
+function demoCaption(i) { txt(D.dcapTx, CONTENT.demo.captions[i]); DCAP.step = i; popIn(DCAP, .3); announce(CONTENT.demo.captions[i]); sfx('pop'); }
+/* how long a deck line stays up on its own: about 4.5 words a second plus a moment to settle. A tap on the panel or on any card moves on sooner */
+function cardDur(s) { return Math.max(1.4, .4 + words(s) * .22); }
+function nextDur(s) { return Math.max(1.2, .2 + words(s) * .22); }    /* the second part of a line: the panel is already up, so less settling */
+function againDur(s) { return Math.max(1.1, .3 + words(s) * .17); }   /* a line already read this round (the returning pair): a quicker reminder */
+var TO_GUARD = .8;                                                     /* a line always shows this long before a tap can move it on */
+function centerOf(c) { return [SLOT[c.i].x + 34, SLOT[c.i].y + 59]; }
+function setDlab() {
+  var hint = G.hint && G.mode === 'round' && G.grid === 0 && G.flips === 0;
+  txt(D.dlab, hint ? CONTENT.hint : (G.mode === 'demo' ? '' : CONTENT.grid.replace('{n}', G.grid + 1)));
+  D.dlab.classList.toggle('hint', hint);
+}
+
+/* ---------- the deck-line panel (the board pauses while it reads) ---------- */
+function toast(pieces, cb, again) {
+  G.paused = true; TO.on = true; TO.pieces = pieces; TO.idx = -1; TO.cb = cb; TO.again = !!again; TO.open0 = clock;
+  tw(TO, 's', 1, .3, E.outBack); D.tgo.disabled = G.mode !== 'round';
+  nextPiece();
+  if (G.lastInput === 'key' && G.mode === 'round') at(.3, function () { if (TO.on) try { D.tgo.focus(); } catch (e) {} });
+}
+function nextPiece() {
+  TO.idx++; TO.token++;
+  if (TO.idx >= TO.pieces.length) { closeToast(); return; }
+  var s = TO.pieces[TO.idx], tok = TO.token;
+  txt(D.toastTx, s); announce(s); TO.t0 = clock; TO.dur = TO.again ? againDur(s) : (TO.idx > 0 ? nextDur(s) : cardDur(s));
+  if (TO.idx > 0) sfx('pop');
+  at(TO.dur, function () { if (tok === TO.token) nextPiece(); });
+}
+/* the panel, its arrow, Enter or Space: the next part of the line (or close after the last part) */
+function skipToast() {
+  if (!TO.on || G.mode !== 'round') return;
+  if (clock - TO.t0 < TO_GUARD) { TO.nudgeT = clock; return; }
+  nextPiece();
+}
+/* a tap on a card: the whole line closes at once, so the tapped card can flip straight away */
+function dismissToast() {
+  if (!TO.on || G.mode !== 'round') return false;
+  if (clock - TO.open0 < TO_GUARD) { TO.nudgeT = clock; return false; }
+  closeToast(true); return true;
+}
+function closeToast(now) {
+  var refocus = document.activeElement === D.tgo;
+  TO.on = false; TO.token++; tw(TO, 's', 0, .22, E.inn); G.paused = false; G.focus = [];
+  var cb = TO.cb; TO.cb = null;
+  if (refocus) focusNearest(G.lastFocus != null ? G.lastFocus : 0);
+  if (now) { if (cb) cb(true); } else at(.06, function () { if (cb) cb(false); });
+}
+
+/* ---------- flips ---------- */
+var FLIP_T = .27, DOWN_T = .22;
+function flipUp(c) {
+  c.up = true; c.el.classList.add('up'); c.pressT = clock;
+  tw(c, 'flip', 1, RM ? .12 : FLIP_T, RM ? E.out : E.outBack);
+  if (!RM) { tw(c, 'lift', 1, .1, E.out); at(.1, function () { if (c.up && !c.matched && c.lift > .9) tw(c, 'lift', .4, .2, E.out); }); }
+  sfx('flip'); ariaCard(c);
+}
+function flipDown(c, d) {
+  c.up = false; c.el.classList.remove('up');
+  tw(c, 'flip', 0, RM ? .1 : (d || DOWN_T), E.inOut); tw(c, 'lift', 0, .15, E.out);
+  ariaCard(c);
+}
+function canFlip(c) { return G.mode === 'round' && (G.phase === 'idle' || G.phase === 'one') && !c.up && !c.matched && c.dO > .9; }
+function pairKey(id) {   /* shopper id for a shopper or its move */
+  var d = CONTENT.cards[id]; if (d.kind === 'shop') return id;
+  for (var k in CONTENT.cards) if (CONTENT.cards[k].pair === id) return k;
+  return id;
+}
+var BUSY = { resolve: 1, match: 1, wrong: 1, same: 1, trap: 1 };
+function flipCard(i, demo) {
+  var c = CARDS[i];
+  if (!demo && !canFlip(c)) {
+    if (G.mode === 'round' && BUSY[G.phase] && !c.up && !c.matched && c.dO > .9) c.wigT = clock;   /* the board is busy for a moment: the card wiggles, so the tap is not lost in silence */
+    return false;
+  }
+  var wasSeen = c.seen; c.seen = true;
+  if (G.mode === 'round') {
+    G.flips++; G.gridFlips[G.grid]++; CAN.flipT = clock; txt(D.flipN, String(G.flips));
+    if (c.kind !== 'trap') G.pairFlips[pairKey(c.def)] = (G.pairFlips[pairKey(c.def)] || 0) + 1;
+    updateLamps(); setDlab(); G.idleT = clock;
+  }
+  c.react = null; c.ani = null;      /* a card turned up again never keeps its last reaction */
+  flipUp(c);
+  announce(CONTENT.cards[c.def].aria);
+  if (c.kind === 'trap') {
+    var o = G.first >= 0 ? CARDS[G.first] : null; G.first = -1; phase('trap');
+    at(FLIP_T + .04, function () { trapSeq(c, o, wasSeen, resolved); });
+    return true;
+  }
+  if (G.first < 0) { G.first = i; phase('one'); return true; }
+  var a = CARDS[G.first]; G.first = -1; phase('resolve');
+  at(FLIP_T + .04, function () { resolvePair(a, c, wasSeen, resolved); });
+  return true;
+}
+function resolved(matchedNow) {
+  if (G.mode !== 'round') return;
+  if (matchedNow && G.matched >= 3) gridEnd(); else backToIdle();
+}
+function backToIdle() { G.first = -1; phase('idle'); G.idleT = clock; }
+function miss(k, w) { G.misses[k] = (G.misses[k] || 0) + w; }
+
+function resolvePair(a, b, bSeen, done) {
+  var ka = kindOf(a), kb = kindOf(b), demo = G.mode !== 'round';
+  if (ka !== kb) {
+    var S = ka === 'shop' ? a : b, M = ka === 'shop' ? b : a;
+    if (CONTENT.cards[S.def].pair === M.def) return matchSeq(S, M, done);
+    if (!demo && bSeen) { G.slips[G.grid]++; miss(S.def, 1); updateLamps(); }
+    return wrongSeq(S, M, done);
+  }
+  sameSeq(a, b, done);
+}
+
+/* ---------- a right pair ---------- */
+function matchSeq(S, M, done) {
+  phase('match');
+  var demo = G.mode !== 'round';
+  S.matched = M.matched = true; S.gold = M.gold = true; G.matched++;
+  tw(S, 'glow', 1, .16, E.out); tw(M, 'glow', 1, .16, E.out); tw(S, 'lift', .7, .22, E.outBack); tw(M, 'lift', .7, .22, E.outBack);
+  S.react = { kind: 'happy', t0: clock + .05 }; M.ani = { t0: clock + .05 };
+  LINK.on = true; LINK.t0 = clock; LINK.a = S; LINK.b = M;
+  sfx('match'); announce(CONTENT.say.pair);
+  if (!demo) {
+    G.pairsDone++;
+    var di = G.grid * 3 + G.matched - 1;
+    at(.5, function () { flyDot(S, M, di); });
+  }
+  at(demo ? 1.05 : .3, function () {   /* the line slides up while the pair still glows; the demo holds the glow longer, so its caption can explain it */
+    G.focus = [S.i, M.i];
+    var again = !demo && !!G.lineShown[M.def]; if (!demo) G.lineShown[M.def] = true;
+    var pieces = demo ? CONTENT.lines[M.def].slice(0, 1) : (again ? [CONTENT.remember[S.def]] : CONTENT.lines[M.def]);   /* the returning pair: just its key sentence */
+    toast(pieces, function (now) {
+      tw(S, 'glow', 0, .25); tw(M, 'glow', 0, .25); tw(S, 'lift', 0, .2); tw(M, 'lift', 0, .2);
+      S.react = null; M.ani = null; LINK.on = false;
+      var hadFocus = document.activeElement === S.el || document.activeElement === M.el;
+      S.el.disabled = true; M.el.disabled = true; ariaCard(S); ariaCard(M);
+      addChip(S.def);
+      if (hadFocus && G.lastInput === 'key') focusNearest(S.i);
+      if (now) done(true); else at(.04, function () { done(true); });
+    }, again);
+  });
+}
+/* which way is away from the other card (1 = to the right) */
+function awayDir(S, M) { return SLOT[M.i].x > SLOT[S.i].x ? -1 : 1; }
+/* ---------- a wrong move: the shopper reacts to THAT move, no words ---------- */
+function wrongSeq(S, M, done) {
+  phase('wrong');
+  var kind = (REACT[S.def] || {})[M.def] || 'lost';
+  S.react = { kind: kind, t0: clock, dir: awayDir(S, M) }; M.ani = { t0: clock };
+  tw(S, 'lift', 0, .2); tw(M, 'lift', 0, .2);
+  tw(S, 'bad', 1, .1); tw(M, 'bad', 1, .1); at(.45, function () { tw(S, 'bad', 0, .4); tw(M, 'bad', 0, .4); });
+  M.shakeT = clock + .4; sfx('nope');
+  announce(CONTENT.say.nopair + ' ' + nameOf(S.def) + ' ' + CONTENT.react[kind] + '.');
+  at(.95, function () { flipDown(S); flipDown(M); sfx('back'); });
+  at(.95 + DOWN_T + .04, function () { S.react = null; M.ani = null; done(false); });
+}
+/* ---------- two shoppers or two moves: a quick look, flip back ---------- */
+function sameSeq(A, B, done) {
+  phase('same');
+  tw(A, 'lift', 0, .2); tw(B, 'lift', 0, .2);
+  if (A.kind === 'shop') {
+    var dir = SLOT[B.i].x > SLOT[A.i].x ? 1 : (SLOT[B.i].x < SLOT[A.i].x ? -1 : 0);
+    A.react = { kind: 'glance', dir: dir || 1, t0: clock }; B.react = { kind: 'glance', dir: -dir || -1, t0: clock + .08 };
+  } else { A.ani = { t0: clock }; B.ani = { t0: clock + .08 }; }
+  announce(CONTENT.say.nopair);
+  at(.45, function () { flipDown(A); flipDown(B); sfx('back'); });
+  at(.45 + DOWN_T + .04, function () { A.react = B.react = null; A.ani = B.ani = null; done(false); });
+}
+/* ---------- a trap: a tiny gag, the DON'T line, then flip back ----------
+   The DON'T line shows the first time each trap is turned in a round. After that the trap only plays a quicker gag
+   (it still costs a slip if the player already knew where it was). A first look is never a miss. */
+function trapSeq(T, O, tSeen, done) {
+  var demo = G.mode !== 'round';
+  var line = demo || !G.lineShown[T.def];
+  if (!demo) { G.lineShown[T.def] = true; if (tSeen) { G.slips[G.grid]++; G.knownTraps++; miss(T.def, 1); updateLamps(); } }
+  var sp = line ? 1 : 1.7;          /* the repeat gag runs 1.7 times faster */
+  tw(T, 'bad', 1, .1); tw(T, 'lift', 0, .2);
+  if (T.def === 'iris') { IPOP.on = true; IPOP.t0 = clock; IPOP.sp = sp; IPOP.card = T; var cc = centerOf(T);
+    /* the shopper beside her in the same row must stay in view: she springs out a little smaller, leaning away from them */
+    var side = (O && O.kind === 'shop' && (O.i >> 2) === (T.i >> 2) && Math.abs(O.i - T.i) === 1) ? (T.i > O.i ? 1 : -1) : 0;
+    IPOP.side = !!side; IPOP.x = side ? clamp(cc[0] + 24 * side, 40, 280) : clamp(cc[0], 58, 262); IPOP.y = SLOT[T.i].y + 42 + (T.i < 4 ? 14 : -24); sfx('tada'); }
+  else { T.ani = { t0: clock, sp: sp }; sfx('boing'); }
+  var rk = O && O.kind === 'shop' ? (T.def === 'point' ? 'circle' : ((REACT[O.def] || {})[T.def] || 'tap')) : null;
+  if (O) {
+    tw(O, 'lift', 0, .2);
+    if (rk) O.react = { kind: rk, t0: clock + (line ? .3 : .12), sp: sp, dir: awayDir(O, T) };
+    else O.ani = { t0: clock + (line ? .25 : .1), sp: sp };
+  }
+  announce(CONTENT.say.trap + (rk ? ' ' + nameOf(O.def) + ' ' + CONTENT.react[rk] + '.' : ''));
+  function back(now) {
+    tw(T, 'bad', 0, .3); flipDown(T); if (O) flipDown(O); sfx('back');
+    function tidy() { if (!T.up) T.ani = null; if (O && !O.up) { O.react = null; O.ani = null; } }
+    if (now) { done(false); at(DOWN_T + .04, tidy); }          /* a card tap closed the line: free the board at once */
+    else at(DOWN_T + .04, function () { tidy(); done(false); });
+  }
+  if (!line) { at(.75, back); return; }
+  at(demo ? 1.4 : .45, function () {   /* the line slides up while the gag is still playing */
+    G.focus = [T.i].concat(O ? [O.i] : []);
+    toast(CONTENT.lines[T.def], back);
+  });
+}
+
+/* ---------- the pair tray and the canopy ---------- */
+function chipHTML(shop) {
+  return '<span class="cb">' + BUB_IC[shop] + '</span><span class="lk">' + HEART + '</span><span class="cm">' + MOVE_IC[CONTENT.cards[shop].pair] + '</span>';
+}
+function addChip(shop) {
+  var k = G.tray.length; if (k > 2) return;
+  G.tray.push(shop); D.chips[k].innerHTML = chipHTML(shop); CH.s[k] = 0; tw(CH.s, k, 1, .32, E.outBackBig); sfx('pop');
+}
+function clearTray() { G.tray = []; for (var k = 0; k < 3; k++) { CH.s[k] = 0; D.chips[k].innerHTML = ''; } }
+function flyDot(S, M, di) {
+  var a = centerOf(S), b = centerOf(M), dot = D.dots[di];
+  FX.flyT = clock; FX.flyFrom = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  var left = parseFloat(dot.style.left) + (OPT.close ? 110 : 225) + 3.5, top = OPT.close ? 34.5 : 20.5;
+  FX.flyTo = [left, top];
+  at(.42, function () { CAN.dots[di] = 1; CAN.dotT[di] = clock; sfx('tick'); });
+}
+function liveScore() {
+  var tot = 0;
+  for (var g = 0; g < 2; g++) {
+    var lost = SCORE.flip * Math.max(0, G.gridFlips[g] - SCORE.free) + SCORE.slip * G.slips[g];
+    tot += Math.max(SCORE.floor, SCORE.grid - lost);
+  }
+  return tot;
+}
+function starsFor(s) { return s >= 85 ? 3 : (s >= 55 ? 2 : 1); }
+function updateLamps() {
+  var n = starsFor(liveScore());
+  for (var k = 0; k < 3; k++) { var lit = k < n ? 1 : 0; if (CAN.lamp[k] && !lit) { CAN.lampOffT[k] = clock; sfx('lamp'); } CAN.lamp[k] = lit; }
+}
+
+/* =====================================================================
+   POSES  (what a shopper does on their card)
+   ===================================================================== */
+function pose(R, u, r) {
+  var L = r.c.look, o = { x: 0, y: 0, r: 0, sx: 1, sy: 1, face: 'neutral', look: [0, 0], sweat: 0, tilt: 0, fx: null, wag: 0, browR: 0, walk: 0 };
+  var inn = prog(u, 0, .3, E.outBack);
+  switch (R.kind) {
+    case 'happy':
+      o.face = 'happy'; o.look = [0, -1]; o.fx = 'hearts';
+      if (u < .9) { o.y = -Math.abs(Math.sin(u / .9 * Math.PI * 2)) * 5; o.sy = 1 + Math.sin(u / .9 * Math.PI * 4) * .025; }
+      break;
+    case 'edge': var ed = R.dir || 1; o.face = 'worried'; o.sweat = 1; o.x = inn * 9 * ed; o.r = inn * 6 * ed; o.look = [-L * 1.1 * ed, 0]; o.tilt = -4 * inn * ed; break;   /* edges away from the card that made him uneasy */
+    case 'tap': o.face = 'flat'; o.look = [-L * .9, 3]; o.tilt = -6 * inn; o.fx = 'clock'; o.y = -Math.max(0, Math.sin(u * 16)) * 1.2; break;
+    case 'repeat': o.face = 'flat'; o.look = [-L * .8, -2]; o.fx = 'bubble'; o.tilt = -4 * inn; break;
+    case 'stared': o.face = 'flat'; o.sweat = 1; o.sweatS = 1.7; o.look = [(Math.sin(u * 13) > 0 ? 1 : -1) * L * 1.1, 0]; o.r = -5 * inn; o.x = -9 * inn; o.tilt = 4 * inn;
+      o.y = u < .7 ? -Math.abs(Math.sin(u * 15)) * 1.6 : 0; break;   /* shuffles sideways out of the stare, sweating */
+    case 'crowd': var sq = prog(u, .25, .5, E.outBack); o.face = 'o'; o.sweat = 1; o.fx = 'crowd'; o.sx = 1 - .1 * sq; o.sy = 1 + .04 * sq; o.look = [(Math.sin(u * 9) > 0 ? 1 : -1) * L, 0]; break;
+    case 'lost': var ph = Math.floor(u * 2.6) % 2 ? 1 : -1; o.face = 'o'; o.fx = 'swirl'; o.look = [ph * L * 1.1, -.5]; o.tilt = ph * 5; break;
+    case 'sleepy': o.face = u > .3 ? 'closed' : 'flat'; o.fx = 'zz'; o.tilt = prog(u, .25, .7, E.inOut) * 9; o.y = prog(u, .25, .7) * 1.5; break;
+    case 'wag': o.face = 'flat'; o.wag = 1; o.tilt = -3 * inn; o.fx = 'wag'; break;
+    case 'brow': o.face = 'flat'; o.browR = prog(u, .05, .3, E.outBack); o.look = [L * .5, -.5]; o.fx = 'q'; o.tilt = 5 * inn; break;
+    case 'glance': o.look = [R.dir * L * 1.2, 0]; o.tilt = R.dir * 3 * inn; break;
+    case 'circle':
+      var a = clamp(u / 1.3) * Math.PI * 2, cs = Math.cos(a);
+      o.x = Math.sin(a) * 8; o.y = -(1 - cs) * 2.6; o.sx = o.sy = .93 + .07 * (1 + cs) / 2;
+      o.face = u > .7 ? 'o' : 'neutral'; o.look = [cs >= 0 ? L : -L, 0]; o.fx = 'loop'; o.sweat = u > .8 ? 1 : 0; o.walk = u < 1.3 ? 1 : 0;
+      break;
+  }
+  return o;
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function renderCanopy(t) {
+  for (var k = 0; k < 3; k++) {
+    var off = t - CAN.lampOffT[k], fl = off >= 0 && off < .6 ? (Math.floor(off * 16) % 2 === 0 ? 1 : 0) : -1;
+    var on = fl < 0 ? CAN.lamp[k] : fl;
+    var col = on ? '#FFB547' : '#CFC8F2'; if (D.bulbs[k].__c !== col) { D.bulbs[k].setAttribute('fill', col); D.bulbs[k].__c = col; }
+    D.halos[k].setAttribute('opacity', on ? (.3 + .08 * Math.sin(t * 3 + k)).toFixed(3) : '0');
+    var sw = (RM ? 0 : jig(t, CAN.lampOffT[k], 16, 13, 3.5)) + (RM ? 0 : Math.sin(t * 1.3 + k * 1.7) * 1.6);
+    setTf(D.lamps[k], 'rotate(' + sw.toFixed(2) + 'deg)');
+  }
+  setTf(D.flips, 'scale(' + (1 + (RM ? 0 : jig(t, CAN.flipT, .22, 26, 8))).toFixed(3) + ')');
+  for (var j = 0; j < 6; j++) {
+    setTf(D.dotsB[j], 'scale(' + CAN.dots[j].toFixed(3) + ')');
+    setTf(D.dots[j], 'scale(' + (1 + jig(t, CAN.dotT[j], .7, 26, 8)).toFixed(3) + ')');
+    cls(D.dots[j], 'g', CAN.dots[j] > .5);
+  }
+  var wig = RM ? 0 : jig(t, CAN.wigT, .08, 22, 6);
+  setTf(D.can, wig ? 'scale(' + (1 + wig * .3).toFixed(4) + ',' + (1 - wig).toFixed(4) + ')' : 'none');
+  CAN.lid += (CAN.lidT - CAN.lid) * .18;
+  if (t > CAN.blinkAt) { CAN.blinkT = t; CAN.blinkAt = t + 2.6 + Math.random() * 3.4; }
+  var bl = t - CAN.blinkT < .16 ? Math.sin((t - CAN.blinkT) / .16 * Math.PI) : 0;
+  var lid = lerp(CAN.lid, 1, bl);
+  for (var e = 0; e < 2; e++) {
+    setTf(D.eyeLid[e], 'translateY(' + (lid * 19).toFixed(2) + 'px)');
+    setTf(D.eyePup[e], 'translate(' + CAN.look[0].toFixed(2) + 'px,' + CAN.look[1].toFixed(2) + 'px)');
+  }
+  var ok = G.helpOK; cls(D.hlp, 'off', !ok); if (D.hlp.__ok !== ok) { D.hlp.setAttribute('aria-disabled', ok ? 'false' : 'true'); D.hlp.__ok = ok; }
+}
+
+function renderCards(t, dt) {
+  for (var i = 0; i < 8; i++) {
+    var c = CARDS[i];
+    var a = c.flip * 180, lift = c.lift;
+    var press = RM ? 0 : jig(t, c.pressT, -.045, 30, 11);
+    var sh = RM ? 0 : jig(t, c.shakeT, 4.5, 46, 8);
+    var wig = RM ? 0 : jig(t, c.wigT, 7, 24, 5);
+    var ru = t - c.rifT, rif = !RM && ru >= 0 && ru < .5 ? Math.sin(ru * 34 + i * 1.7) * 8 * (1 - ru / .5) : 0;
+    var bob = c.up && !c.matched && G.phase === 'one' && G.first === i && !RM ? Math.sin(t * 5) * 1.2 : 0;
+    var dimT = G.paused && G.focus.indexOf(i) < 0 ? .6 : 1;
+    c.dimV += (dimT - c.dimV) * Math.min(1, dt * 10);
+    setTf(c.cw, 'translate(' + (c.dx + sh + rif).toFixed(2) + 'px,' + (c.dy - lift * 6 + bob).toFixed(2) + 'px) rotate(' + (c.dr + wig).toFixed(2) + 'deg) scale(' + (c.ds * (1 + lift * .05 + press)).toFixed(4) + ')');
+    setOp(c.cw, c.dO * c.dimV);
+    visi(c.el, c.dO > .01);
+    var backOn = a < 90;
+    visi(c.bk, backOn); visi(c.fr, !backOn);
+    if (backOn) setTf(c.bk, a > .3 ? 'perspective(420px) rotateY(' + a.toFixed(2) + 'deg)' : 'none');
+    else setTf(c.fr, Math.abs(a - 180) > .3 ? 'perspective(420px) rotateY(' + (a - 180).toFixed(2) + 'deg)' : 'none');
+    setOp(c.shd, .55 - lift * .25); setTf(c.shd, 'translateY(' + (lift * 4).toFixed(2) + 'px) scale(' + (1 + lift * .12).toFixed(3) + ')');
+    var pulse = c.glow > .01 ? c.glow * (.75 + .25 * Math.sin(t * 9)) : 0;
+    setOp(c.gl, pulse); setOp(c.gb, c.bad);
+    cls(c.fr, 'gold', c.gold);
+    if (backOn) {
+      if (t > c.bkBlinkAt) { c.bkBlinkT = t; c.bkBlinkAt = t + 3 + Math.random() * 6; }
+      var bd = t - c.bkBlinkT, bb = bd >= 0 && bd < .18 ? Math.sin(bd / .18 * Math.PI) : 0;
+      var nudge = t - c.wigT < 1.2 ? 1 : 0;
+      sT(c.bkLid, 0, (bb * 11) - nudge * 6, 1); sT(c.bkPup, nudge ? Math.sin(t * 10) * 1.5 : 0, 0, 1);
+    } else if (c.def) {
+      if (c.rig) renderFig(c, t, dt); else renderIcon(c, t);
+    }
+  }
+}
+
+function renderFig(c, t, dt) {
+  var r = c.rig, st = r.st, p = r.p, k = r.c, R = c.react, u = R ? (t - R.t0) * (R.sp || 1) : -1;
+  var P = R && u >= 0 ? pose(R, u, r) : null;
+  var face = P ? P.face : (c.matched ? 'happy' : 'neutral');
+  var look = P ? P.look : [Math.sin(t * .7 + r.seed) * 1.4, 0];
+  st.lk[0] += (look[0] - st.lk[0]) * Math.min(1, dt * 14); st.lk[1] += (look[1] - st.lk[1]) * Math.min(1, dt * 14);
+  var x = 0, y = 0, rot = 0, sx = 1, sy = 1;
+  if (P && !RM) { x = P.x; y = P.y + (P.walk ? -Math.abs(Math.sin(u * 14)) * 1.5 : 0); rot = P.r; sx = P.sx; sy = P.sy; }
+  var br = RM ? 0 : Math.sin(t * 2.1 + r.seed) * .008;
+  setTf(r.wrap, 'translate(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px) rotate(' + rot.toFixed(2) + 'deg) scale(' + (sx * (1 + br)).toFixed(4) + ',' + (sy * (1 - br)).toFixed(4) + ')');
+  var m = face === 'flat' ? 'fl' : (face === 'worried' || face === 'o') ? 'o' : (face === 'happy' ? 'tk' : 'sm');
+  show(p.sm, m === 'sm'); show(p.tk, m === 'tk'); show(p.fl, m === 'fl'); show(p.o, m === 'o');
+  var lidT = face === 'flat' ? k.lidFlat : face === 'closed' ? k.lidShut : face === 'happy' ? Math.max(0, k.lidRest - 3) : (face === 'worried' || face === 'o') ? 0 : k.lidRest;
+  st.lid += (lidT - st.lid) * Math.min(1, dt * 12);
+  if (t > st.blinkAt) { st.blinkT = t; st.blinkAt = t + 2.2 + Math.random() * 3.2; }
+  var bd = t - st.blinkT, bl = bd >= 0 && bd < .16 && face !== 'flat' && face !== 'closed' ? Math.sin(bd / .16 * Math.PI) : 0;
+  sT(p.lid, 0, lerp(st.lid, k.lidShut, bl), 1);
+  sT(p.pup, st.lk[0], st.lk[1], 1);
+  var tilt = (P ? P.tilt : 0) + (RM ? 0 : Math.sin(t * 1.3 + r.seed) * 1.1);
+  sT(p.head, 0, 0, 1, tilt, k.neck[0], k.neck[1]); if (p.hb) sT(p.hb, 0, 0, 1, tilt, k.neck[0], k.neck[1]);
+  if (p.brow) sT(p.brow, 0, (face === 'worried' || face === 'o') ? -4 : 0, 1);
+  var sw = P ? P.sweat : 0;
+  if (p.sweat) { show(p.sweat, sw > 0); if (sw) sT(p.sweat, 0, (t * 13 + r.seed * 3) % 11, P.sweatS || 1, 0, k.sw[0], k.sw[1]); }
+  if (r.name === 'dadi') {
+    var wg = P && P.wag ? Math.sin(t * 16) * 9 : 0; sT(p.farm, 0, 0, 1, wg, 130, 140);
+    var eo = P && P.wag ? '.9' : '0'; if (p.emph.__o !== eo) { p.emph.setAttribute('opacity', eo); p.emph.__o = eo; }
+    var b = P ? P.browR : 0; sT(p.browR, 0, -11 * b, 1, -10 * b, 119, 68); sT(p.browL, 0, 2 * b, 1, 4 * b, 81, 68);
+  } else if (r.name === 'meera') {
+    sT(p.fan, 0, 0, 1, 10 + (face === 'happy' && !RM ? Math.sin(t * 15) * 14 : 0), 167, 124);
+    var shut = face === 'closed'; show(p.eyes, !shut); show(p.shut, shut);
+  } else if (r.name === 'sethi') {
+    sT(p.stache, 0, face === 'happy' && !RM ? Math.sin(t * 22) * 1.2 : 0, 1, 0, 124, 114);
+  }
+  if (c.mate) setTf(c.mate, 'translateY(' + (RM ? 0 : Math.abs(Math.sin(t * 2.4)) * -1).toFixed(2) + 'px)');
+  /* reaction effects */
+  var fx = P ? P.fx : null, E2 = c.ef;
+  show(E2.clock, fx === 'clock');
+  if (fx === 'clock') { setTf(E2.clock, 'scale(' + prog(u, 0, .22, E.outBackBig).toFixed(3) + ')'); sT(E2.clockH, 0, 0, 1, u * 540, 12, 12); }
+  show(E2.zz, fx === 'zz');
+  if (fx === 'zz') { var zu = (u * 1.2) % 1; setTf(E2.zz, 'translateY(' + (-zu * 8).toFixed(2) + 'px)'); setOp(E2.zz, prog(u, .3, .5) * (1 - prog(zu, .7, 1))); }
+  show(E2.swirl, fx === 'swirl'); if (fx === 'swirl') setTf(E2.swirl, 'rotate(' + (u * 400).toFixed(1) + 'deg) scale(' + prog(u, 0, .2, E.outBackBig).toFixed(3) + ')');
+  show(E2.loop, fx === 'loop'); if (fx === 'loop') { setOp(E2.loop, prog(u, 0, .25)); setTf(E2.loop, 'rotate(' + (RM ? 0 : Math.sin(u * 5) * 3).toFixed(2) + 'deg)'); }
+  var crowd = fx === 'crowd'; show(E2.cl, crowd); show(E2.cr, crowd);
+  if (crowd) { var cu = prog(u, .05, .35, E.outBack); setTf(E2.cl, 'translateX(' + ((1 - cu) * -26).toFixed(2) + 'px)'); setTf(E2.cr, 'translateX(' + ((1 - cu) * 26).toFixed(2) + 'px)'); }
+  show(E2.hearts, fx === 'hearts');
+  if (fx === 'hearts') for (var h2 = 0; h2 < 3; h2++) {
+    var hu = clamp((u - h2 * .14) / .9);
+    E2.hs[h2].style.left = (6 + h2 * 11 + Math.sin(hu * 7 + h2) * 3).toFixed(1) + 'px'; E2.hs[h2].style.top = (24 - hu * 30).toFixed(1) + 'px';
+    setOp(E2.hs[h2], hu > 0 && hu < 1 ? 1 - prog(hu, .65, 1) : 0); setTf(E2.hs[h2], 'scale(' + Math.sin(Math.min(1, hu * 2) * Math.PI / 2).toFixed(3) + ')');
+  }
+  /* 'repeat': the bubble jumps up twice (to about 1.25) and an arrow points back at it */
+  var bb = fx === 'bubble' && !RM && u < 1.1 ? Math.abs(Math.sin(u / 1.1 * Math.PI * 2)) : 0;
+  setTf(c.sbub, bb > .001 ? 'translateY(' + (3 * bb).toFixed(2) + 'px) scale(' + (1 + .25 * bb).toFixed(3) + ')' : 'none');
+  show(E2.arw, fx === 'bubble');
+  if (fx === 'bubble') setTf(E2.arw, 'translate(' + (-3.5 * bb).toFixed(2) + 'px,' + (-3.5 * bb).toFixed(2) + 'px) scale(' + (RM ? 1 : prog(u, 0, .2, E.outBackBig)).toFixed(3) + ')');
+  show(E2.qm, fx === 'q');
+  if (fx === 'q') setTf(E2.qm, 'rotate(' + (RM ? 0 : Math.sin(u * 10) * 10 * Math.max(0, 1 - u)).toFixed(2) + 'deg) scale(' + (RM ? 1 : prog(u, .05, .27, E.outBackBig)).toFixed(3) + ')');
+  show(E2.wag, fx === 'wag');
+  if (fx === 'wag') { setTf(E2.wag, 'scale(' + (RM ? 1 : prog(u, 0, .22, E.outBackBig)).toFixed(3) + ')'); sT(E2.fw, 0, 0, 1, RM ? 0 : Math.sin(u * 16) * 24, 12, 18); }
+}
+
+function renderIcon(c, t) {
+  var g = c.icon, A = c.ani, u = A ? (t - A.t0) * (A.sp || 1) : -1, id = c.def;
+  if (c.irisS) visi(c.irisS, !(IPOP.on && IPOP.card === c));
+  if (!g) return;
+  if (u < 0 || RM) { sT(g, 0, 0, 1); if (c.rw) c.rw.setAttribute('opacity', '1'); if (c.ep) sT(c.ep, 0, 0, 1); return; }
+  if (id === 'walk') { sT(g, 0, 0, 1, Math.sin(u * 11) * 12 * Math.max(0, 1 - u / 1.1), 6, 26); if (c.arw) c.arw.setAttribute('stroke-dashoffset', (-u * 22).toFixed(1)); }
+  else if (id === 'space') sT(g, 0, 0, 1, 180 * E.inOut(prog(u, .05, .6)), 20, 20);
+  else if (id === 'help') { sT(g, 0, 0, 1, jig(t, A.t0, 18, 28, 3.5), 20, 9); c.rw.setAttribute('opacity', u < 1 && Math.sin(u * 30) > 0 ? '1' : '.25'); }
+  else if (id === 'observe') { var bk = (u > .2 && u < .34) || (u > .62 && u < .76) ? .12 : 1; sT(g, 0, 0, 1, 0, 20, 20, bk); sT(c.ep, Math.sin(u * 7) * 3.2, 0, 1); }
+  else if (id === 'ask') sT(g, 0, -Math.abs(Math.sin(u * 9)) * 4 * Math.max(0, 1 - u / 1.2), 1);
+  else if (id === 'point') {
+    var seq = [0, -38, 30, -62, 48, -18, 72, 6, 0], n = Math.floor(u / .16), f = (u % .16) / .16;
+    var ang = n < seq.length - 1 ? lerp(seq[n], seq[n + 1], E.outBack(f)) : 0;
+    sT(g, 0, 0, 1, ang, 8, 22); c.ml.setAttribute('opacity', n < seq.length - 1 && Math.sin(u * 40) > 0 ? '1' : '.2');
+  }
+  else if (id === 'iris') sT(g, 0, 0, 1, jig(t, A.t0, 10, 20, 4), 130, 200);
+}
+
+function renderOverlays(t) {
+  /* the gold link between a right pair, with a heart running along it */
+  var lu = t - LINK.t0, lOn = LINK.on && lu >= 0 && lu < 1.3;
+  show(D.link, lOn);
+  if (lOn) {
+    var A = centerOf(LINK.a), B = centerOf(LINK.b), cx = (A[0] + B[0]) / 2, cy = Math.min(A[1], B[1]) - 34 - Math.abs(A[0] - B[0]) * .12;
+    var dpath = 'M' + A[0] + ' ' + A[1] + 'Q' + cx.toFixed(1) + ' ' + cy.toFixed(1) + ' ' + B[0] + ' ' + B[1];
+    if (D.linkP.__d !== dpath) { D.linkP.setAttribute('d', dpath); D.linkP.__d = dpath; }
+    setOp(D.link, prog(lu, 0, .15) * (1 - prog(lu, 1.05, 1.3)));
+    var s = E.inOut(prog(lu, .12, .8)), m = 1 - s;
+    var hx = m * m * A[0] + 2 * m * s * cx + s * s * B[0], hy = m * m * A[1] + 2 * m * s * cy + s * s * B[1];
+    var hs = s > 0 && s < 1 ? 1 : (s >= 1 ? 1 + jig(t, LINK.t0 + .8, .4, 20, 6) : 0);
+    D.linkH.setAttribute('transform', 'translate(' + hx.toFixed(1) + ' ' + hy.toFixed(1) + ') scale(' + hs.toFixed(3) + ')');
+  }
+  /* Iris springs out of her card and bats her lashes */
+  var iu = (t - IPOP.t0) * (IPOP.sp || 1), iOn = IPOP.on && iu >= 0 && iu < 1.45;
+  if (IPOP.on && iu >= 1.45) IPOP.on = false;
+  show(D.ipop, iOn);
+  if (iOn) {
+    var grow = RM ? 1 : E.outBackBig(prog(iu, 0, .26)), shrink = RM ? 0 : E.inn(prog(iu, 1.15, 1.45));
+    var sc = lerp(.44, IPOP.side ? .95 : 1.1, grow) * (1 - shrink * .6), up = (1 - shrink) * grow;
+    var cc = centerOf(IPOP.card);
+    var x = lerp(cc[0], IPOP.x, up), y = lerp(SLOT[IPOP.card.i].y + 42, IPOP.y, up);
+    var wob = RM ? 0 : Math.sin(iu * 13) * 4 * (1 - shrink);
+    setTf(D.ipop, 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + wob.toFixed(2) + 'deg) scale(' + sc.toFixed(4) + ')');
+    setOp(D.ipop, 1 - prog(iu, 1.3, 1.45));
+    var blink = 0;
+    [.42, .66, .86].forEach(function (b0) { var bu = (iu - b0) / .14; if (bu > 0 && bu < 1) blink = Math.max(blink, Math.sin(bu * Math.PI)); });
+    D.ipLid.setAttribute('transform', 'translate(0 101.5) scale(1 ' + Math.max(.001, blink).toFixed(3) + ') translate(0 -101.5)');
+    sT(D.ipLash, 0, 0, 1, blink * 6 * Math.sin(iu * 40), 130, 104);
+    sT(D.ipSpk, 0, 0, 1 + .15 * Math.sin(iu * 12), RM ? 0 : iu * 90, 130, 30);
+  }
+  /* a gold dot flies into the canopy for every pair */
+  var fu = (t - FX.flyT) / .42, fOn = fu >= 0 && fu < 1;
+  show(D.flyd, fOn);
+  if (fOn) {
+    var e = E.inOut(fu), fx = lerp(FX.flyFrom[0], FX.flyTo[0], e) - Math.sin(fu * Math.PI) * 20, fy = lerp(FX.flyFrom[1], FX.flyTo[1], e) - Math.sin(fu * Math.PI) * 22;
+    setTf(D.flyd, 'translate(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px) scale(' + lerp(1.6, .8, e).toFixed(3) + ')');
+  }
+}
+
+function renderDoorsEnd(t) {
+  var o = DOOR.o;
+  setTf(D.doorL, 'translateX(' + (-164 * o).toFixed(2) + 'px)'); setTf(D.doorR, 'translateX(' + (164 * o).toFixed(2) + 'px)');
+  show(D.doorL, o < .995); show(D.doorR, o < .995);
+  visi(D.endp, ENDP.s > .01); if (ENDP.s > .01) { setOp(D.endp, clamp(ENDP.s)); setTf(D.endp, 'scale(' + (.94 + .06 * clamp(ENDP.s)).toFixed(4) + ')'); }
+  visi(D.ab, AB.s > .01); if (AB.s > .01) setTf(D.ab, 'translate(-50%,0) scale(' + Math.max(0, AB.s).toFixed(4) + ') rotate(' + (RM ? 0 : Math.sin(t * 2.4) * 1).toFixed(2) + 'deg)');
+}
+
+function renderDock(t) {
+  var trayOn = (G.mode === 'round' || G.mode === 'demo') && YT.s < .5 && G.phase !== 'end';
+  visi(D.tray, trayOn); visi(D.dlab, trayOn && DCAP.s < .3);
+  for (var k = 0; k < 3; k++) { var cs = CH.s[k]; visi(D.chips[k], cs > .01); if (cs > .01) setTf(D.chips[k], 'scale(' + Math.max(0, cs).toFixed(4) + ')'); }
+  visi(D.toast, TO.s > .01);
+  if (TO.s > .01) {
+    setTf(D.toast, 'translateY(' + ((1 - Math.min(1, TO.s)) * 104).toFixed(2) + 'px)');
+    var pu = TO.on ? clamp((t - TO.t0) / TO.dur) : 1;
+    setTf(D.tbar, 'scaleX(' + (1 - pu).toFixed(4) + ')');
+    var tu = prog(t, TO.t0, TO.t0 + .22, E.out);
+    setTf(D.toastTx, 'translateY(' + ((1 - tu) * 6).toFixed(2) + 'px)'); setOp(D.toastTx, tu);
+    visi(D.tgo, G.mode === 'round');
+    var nj = RM ? 0 : jig(t, TO.nudgeT, .16, 30, 9);                 /* a tap that came too early: the arrow bobs, so it never feels ignored */
+    setTf(D.tgo, nj ? 'scale(' + (1 + Math.abs(nj)).toFixed(3) + ')' : 'none');
+  }
+  visi(D.dcap, DCAP.s > .01);
+  if (DCAP.s > .01) { setTf(D.dcap, 'translate(-50%,0) scale(' + Math.max(0, DCAP.s).toFixed(4) + ')'); for (var s = 0; s < 3; s++) cls(D.dcapSt[s], 'on', s === DCAP.step); }
+  visi(D.yt, YT.s > .01); if (YT.s > .01) setTf(D.yt, 'scale(' + (Math.max(0, YT.s) * (1 + (RM ? 0 : Math.max(0, Math.sin(t * 4)) * .02))).toFixed(4) + ')');
+  visi(D.endb, ENDB.s > .01); if (ENDB.s > .01) setTf(D.endb, 'translateY(' + ((1 - Math.min(1, ENDB.s)) * 20).toFixed(2) + 'px) scale(' + Math.max(0, ENDB.s).toFixed(4) + ')');
+}
+
+function renderHand(t) {
+  visi(D.hand, HAND.o > .01);
+  if (HAND.o < .01) return;
+  setOp(D.hand, HAND.o);
+  setTf(D.hand, 'translate(' + (HAND.x - 21).toFixed(2) + 'px,' + (HAND.y - 2 + HAND.press * 3).toFixed(2) + 'px) rotate(-12deg) scale(' + (1 - HAND.press * .08).toFixed(3) + ')');
+}
+
+/* =====================================================================
+   PER-FRAME LOGIC
+   ===================================================================== */
+function logic(dt) {
+  if (G.mode === 'round' && G.timing) G.playT += dt;
+  /* a nudge when nothing happens for a while: a face-down card wiggles and Archie looks at it */
+  var nudge = null;
+  if (G.mode === 'round' && (G.phase === 'idle' || G.phase === 'one') && !TO.on && clock - G.idleT > 7) {
+    G.idleT = clock;
+    var pool = CARDS.filter(function (c) { return !c.up && !c.matched; });
+    if (pool.length) { var pc = pool[Math.floor(Math.random() * pool.length)]; pc.wigT = clock; G.nudged = pc.i; }
+  }
+  var look = [0, 2];
+  if (TO.on) look = [0, 4];
+  else if (G.nudged != null && clock - CARDS[G.nudged].wigT < 1.2) { var nc = centerOf(CARDS[G.nudged]); look = [clamp((nc[0] - 28) / 40, -4, 4), 3]; }
+  else if (G.first >= 0) { var fc = centerOf(CARDS[G.first]); look = [clamp((fc[0] - 28) / 40, -4, 4), 3]; }
+  else if (G.phase === 'end') look = [1, 2];
+  CAN.look[0] += (look[0] - CAN.look[0]) * .15; CAN.look[1] += (look[1] - CAN.look[1]) * .15;
+  G.helpOK = G.mode === 'round' && G.phase === 'idle' && !TO.on && G.timing;
+}
+
+function frame(ts) {
+  requestAnimationFrame(frame);
+  if (!lastTs) lastTs = ts;
+  var real = Math.min(.1, Math.max(0, (ts - lastTs) / 1000)); lastTs = ts;
+  if (hiddenPause) return;
+  var dt = real * tScale;
+  var steps = Math.max(1, Math.ceil(dt / .05)), sd = dt / steps;
+  for (var i = 0; i < steps; i++) { clock += sd; runTimers(); runTweens(); logic(sd); }
+  var t = clock;
+  renderCanopy(t); renderCards(t, dt); renderOverlays(t); renderDoorsEnd(t); renderDock(t); renderHand(t);
+}
+
+/* =====================================================================
+   BOARD: reset, deal, gather, shuffle
+   ===================================================================== */
+function resetBoard() {
+  tweens = [];
+  CARDS.forEach(function (c) {
+    c.flip = 0; c.lift = 0; c.glow = 0; c.bad = 0; c.up = false; c.matched = false; c.seen = false; c.gold = false; c.react = null; c.ani = null;
+    c.dx = DECK.x - SLOT[c.i].x; c.dy = DECK.y - SLOT[c.i].y; c.dr = 0; c.ds = 1; c.dO = 0; c.el.disabled = false; c.el.classList.remove('up'); c.dimV = 1;
+  });
+  TO.on = false; TO.s = 0; TO.token++; AB.s = 0; DCAP.s = 0; YT.s = 0; ENDB.s = 0; ENDP.s = 0; HAND.o = 0; HAND.press = 0;
+  LINK.on = false; IPOP.on = false; G.paused = false; G.focus = []; G.first = -1; FX.flyT = -9;
+  D.yt.disabled = true; D.again.disabled = true; D.enter.disabled = true;
+  clearTray();
+}
+function dealIn(cb) {
+  phase('deal');
+  var stag = RM ? 0 : .055, dur = RM ? .2 : .38;
+  CARDS.forEach(function (c, n) {
+    var s = SLOT[c.i];
+    c.flip = 0; c.dO = 0;
+    if (RM) { c.dx = 0; c.dy = 0; c.dr = 0; c.ds = 1; }
+    else { c.dx = DECK.x - s.x; c.dy = DECK.y - s.y; c.dr = (n % 2 ? 1 : -1) * (10 + n * 2); c.ds = .9; }
+    at(n * stag, function () {
+      if (RM) { tw(c, 'dO', 1, dur, E.out); return; }
+      c.dO = 1; tw(c, 'dx', 0, dur, E.out); tw(c, 'dy', 0, dur, E.outBack); tw(c, 'dr', 0, dur + .04, E.out); tw(c, 'ds', 1, dur, E.out); sfx('deal');
+    });
+  });
+  at(7 * stag + dur + .06, function () { if (cb) cb(); });
+}
+function gather() {
+  CARDS.forEach(function (c, n) {
+    var s = SLOT[c.i];
+    tw(c, 'dx', STACK.x - s.x + (n % 3 - 1) * 1.5, .3, E.inOut, n * .025); tw(c, 'dy', STACK.y - s.y + (n % 2) * 1.5, .3, E.inOut, n * .025);
+    tw(c, 'dr', (n % 2 ? 1 : -1) * (2 + n), .3, E.inOut, n * .025);
+  });
+  sfx('whoosh');
+}
+function riffle() { CARDS.forEach(function (c) { c.rifT = clock + c.i * .02; }); sfx('riffle'); }
+function dealOut(cb) {
+  CARDS.forEach(function (c, n) {
+    at(n * .055, function () { tw(c, 'dx', 0, .34, E.out); tw(c, 'dy', 0, .34, E.outBack); tw(c, 'dr', 0, .36, E.out); sfx('deal'); });
+  });
+  at(7 * .055 + .4, function () { if (cb) cb(); });
+}
+function idsFor(g) {
+  var shops = g === 0 ? CONTENT.grids[0].slice() : CONTENT.grids[1].concat([G.returning || CONTENT.grids[0][0]]);
+  var ids = []; shops.forEach(function (s) { ids.push(s, CONTENT.cards[s].pair); });
+  return ids.concat(CONTENT.traps);
+}
+var FIXED = [0, 3, 6, 1, 2, 7, 4, 5];   /* ?shuffle=0: slot k gets ids[FIXED[k]] */
+function layoutFor(g) {
+  var ids = idsFor(g);
+  if (!OPT.shuffle) return FIXED.map(function (k) { return ids[k]; });
+  var out = shuffle(ids.slice());
+  if (out.join() === G.lastLayout) out.push(out.shift());   /* never the same board twice in a row */
+  G.lastLayout = out.join();
+  return out;
+}
+function setDeck(ids) { ids.forEach(function (id, i) { setFace(i, id); }); }
+
+/* =====================================================================
+   ROUND FLOW
+   ===================================================================== */
+function prepRound() {
+  G.mode = 'round'; G.grid = 0; G.flips = 0; G.gridFlips = [0, 0]; G.slips = [0, 0]; G.knownTraps = 0; G.misses = {}; G.pairFlips = {}; G.matched = 0; G.pairsDone = 0;
+  G.returning = null; G.lineShown = {}; G.final = null; G.playT = 0; G.timing = false; G.first = -1; G.demoReturn = null; G.nudged = null;
+  G.roundN += 1; G.hint = G.roundN === 1;
+  CAN.lamp = [1, 1, 1]; CAN.lampOffT = [-9, -9, -9]; CAN.dots = [0, 0, 0, 0, 0, 0]; txt(D.flipN, '0');
+  clearTray(); setDeck(layoutFor(0)); setDlab(); tabCards(true);
+}
+function tabCards(on) { CARDS.forEach(function (c) { c.el.tabIndex = on ? 0 : -1; }); }
+function startPlay() {
+  G.mode = 'round'; G.timing = true; backToIdle(); setDlab();
+  if (G.lastInput === 'key') focusNearest(0);
+}
+function startRound() {
+  clearTimers(); G.mode = 'round'; phase('deal'); cls(D.doorL, 'titled', false); cls(D.doorR, 'titled', false); cls(D.doorL, 'plain', false); cls(D.doorR, 'plain', false);
+  doorsCycle(function () { resetBoard(); prepRound(); }, function () { dealIn(startPlay); });
+}
+function doorsCycle(mid, after) {
+  tw(DOOR, 'o', 0, .26, E.inOut); sfx('shhk');
+  at(.3, function () { if (mid) mid(); });
+  at(.42, function () { tw(DOOR, 'o', 1, .34, E.inOut); });
+  if (after) at(.5, after);
+}
+function pickReturning() {
+  var best = null, bv = -1;
+  CONTENT.grids[0].forEach(function (s) {
+    var v = (G.pairFlips[s] || 0) + (G.misses[s] || 0) * 2;
+    if (v > bv || (v === bv && OPT.shuffle && Math.random() < .5)) { bv = v; best = s; }
+  });
+  return best;
+}
+function gridEnd() {
+  phase('gridEnd');
+  if (G.grid === 0) {
+    G.timing = false; G.returning = pickReturning();
+    at(.15, function () { archieSay(CONTENT.archie.grid2, 1.9); });
+    at(.3, function () { CARDS.forEach(function (c) { flipDown(c, .2); }); sfx('back'); });
+    at(.62, function () { CARDS.forEach(function (c) { c.gold = false; c.matched = false; }); gather(); });
+    at(1.0, riffle);
+    at(1.55, function () {
+      G.grid = 1; G.matched = 0; clearTray(); setDlab();
+      layoutFor(1).forEach(function (id, i) { setFace(i, id); });
+      dealOut(startPlay);
+    });
+  } else at(.4, endRound);
+}
+
+/* =====================================================================
+   END CARD
+   ===================================================================== */
+/* the move a trap stands in for: shown beside the trap on the end card when the trap was the biggest slip */
+var TRAP_FIX = { iris: 'ask', point: 'walk' };
+function computeFinal() {
+  var score = Math.round(liveScore()), stars = starsFor(score), slips = G.slips[0] + G.slips[1];
+  /* misses only grow from slips (1 each), so a clean round always ends on the 'perfect' line */
+  var big = 'perfect', bv = .45;
+  ['iris', 'point', 'sethi', 'meera', 'anjali', 'pranav', 'dadi'].forEach(function (k) { if ((G.misses[k] || 0) > bv) { bv = G.misses[k]; big = k; } });
+  var mi = G.misses.iris || 0, mp = G.misses.point || 0;
+  var trapTier = G.knownTraps >= 2 && stars < 3 ? (mi >= 1 && mi >= mp ? CONTENT.tiers.traps : (mp >= 1 ? CONTENT.tiers.point : null)) : null;
+  var tier = score >= 95 && slips === 0 ? CONTENT.tiers.perfect : (trapTier || [CONTENT.tiers.one, CONTENT.tiers.two, CONTENT.tiers.three][stars - 1]);
+  var kind = CONTENT.cards[big] ? CONTENT.cards[big].kind : null;
+  var fan = kind === 'shop' ? [big, CONTENT.cards[big].pair] : (kind === 'trap' ? [big, TRAP_FIX[big]] : ['dadi', 'ask']);
+  return { score: score, stars: stars, flips: G.flips, slips: slips, traps: G.knownTraps, seconds: Math.round(G.playT), pairs: G.pairsDone, remember: CONTENT.remember[big], miss: big, tier: tier, round: G.roundN, fan: fan };
+}
+function miniCard(id, u) {
+  var d = CONTENT.cards[id];
+  var inner = faceHTML(id, u);
+  /* a trap keeps its red trap face and X badge; the shopper and the right move get the gold border and tick */
+  return '<div class="mini"><div class="fc fr' + (d.kind === 'trap' ? ' trap' : ' gold') + '" style="position:absolute">' + inner + '</div></div>';
+}
+function endRound() {
+  clearTimers(); G.mode = 'end'; phase('end'); G.timing = false;
+  var F = computeFinal(); G.final = F;
+  updateLamps(); txt(D.flipN, String(G.flips));
+  TO.on = false; TO.s = 0; DCAP.s = 0; HAND.o = 0; YT.s = 0; D.yt.disabled = true; G.paused = false; LINK.on = false;
+  var best = Math.max(F.score, parseInt(store.get('best'), 10) || 0); store.set('best', best);
+  post({ event: 'complete', score: F.score, stars: F.stars, flips: F.flips, seconds: F.seconds, round: F.round });
+  cls(D.doorL, 'titled', false); cls(D.doorR, 'titled', false); cls(D.doorL, 'plain', true); cls(D.doorR, 'plain', true);
+  tw(DOOR, 'o', 0, .4, E.inOut); sfx('shhk');
+  for (var j = 0; j < 6; j++) CAN.dots[j] = 1;
+  at(.4, function () {
+    if (cardIndex(document.activeElement) >= 0) parkFocus();   /* a focused card is about to be disabled: focus waits on the game, not on <body> */
+    CARDS.forEach(function (c) { c.dO = 0; c.el.disabled = true; });
+    var fail = OPT.pass > 0 && F.score < OPT.pass;
+    archieSay(fail ? CONTENT.end.retry : F.tier);
+    D.eFan.innerHTML = miniCard(F.fan[0], 'e0r' + G.roundN) + miniCard(F.fan[1], 'e1r' + G.roundN);
+    var minis = qa('.mini', D.eFan);
+    minis[0].style.left = '2px'; minis[0].style.transform = 'scale(.78) rotate(-9deg)';
+    minis[1].style.left = '44px'; minis[1].style.transform = 'scale(.78) rotate(8deg)';
+    if (CONTENT.cards[F.fan[0]].kind === 'trap') { minis[1].style.left = '58px'; minis[1].style.transform = 'scale(.78) rotate(6deg)'; }   /* keep the trap card's label whole */
+    var fr0 = q('.fr', minis[0]), fig = q('.fig', fr0);
+    if (fig) { var sv = q('svg', fig); [['.m-sm', 'none'], ['.m-fl', 'none'], ['.m-o', 'none'], ['.sweat', 'none'], ['.shut', 'none'], ['.emph', 'none']].forEach(function (p) { var e = sv.querySelector(p[0]); if (e) e.style.display = p[1]; }); }
+    D.eScore.innerHTML = '0<small>%</small>'; D.eScore.__v = 0;
+    var st = ''; for (var s = 0; s < 3; s++) st += '<span>' + STAR + '</span>'; D.eStars.innerHTML = st;
+    D.eBest.textContent = fail ? CONTENT.end.need.replace('{p}', OPT.pass) : CONTENT.end.best + ' ' + best + '%';
+    D.eStats.innerHTML = '<span>' + IC_PAIRS + CONTENT.end.pairs.replace('{n}', F.pairs) + '</span><span>' + IC_FLIPS + CONTENT.end.flips.replace('{n}', F.flips) + '</span><span>' + IC_CLOCK + fmtTime(F.seconds) + '</span>';
+    D.eRemTx.textContent = F.remember;
+    popIn(ENDP, .4); G.countT = clock;
+    for (var k = 0; k < F.stars; k++) (function (kk) { at(.7 + kk * .22, function () { var sp = D.eStars.children[kk]; sp.innerHTML = STAR_ON; if (sp.animate && !RM) sp.animate([{ transform: 'scale(.3)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 320, easing: 'ease-out' }); sfx('star'); }); })(k);
+    cls(D.endb, 'fail', fail);
+    at(.5, function () { popIn(ENDB, .35); });
+    /* the buttons sit where the deck-line panel was: they stay inert while they pop in (done at .85) and a little after,
+       so an extra tap meant for the last line can never end the round or start a new one */
+    at(1.4, function () { D.again.disabled = false; D.enter.disabled = fail; });
+    at(1.45, function () { if (G.lastInput === 'key') (fail ? D.again : D.enter).focus(); });
+    announce('Round complete. Score ' + F.score + ' percent. ' + F.stars + ' of 3 stars. ' + F.pairs + ' pairs, ' + F.flips + ' flips, ' + fmtTime(F.seconds) + '. ' + (fail ? CONTENT.end.retry : F.tier) + ' To remember: ' + F.remember);
+  });
+}
+function countUp() {
+  if (G.phase !== 'end' || !G.final || G.countT == null) return;
+  var u = prog(clock, G.countT + .3, G.countT + 1.2, E.out), v = Math.round(G.final.score * u);
+  if (D.eScore.__v !== v) { D.eScore.innerHTML = v + '<small>%</small>'; D.eScore.__v = v; }
+}
+function enterLMS() {
+  if (G.phase !== 'end' || !G.final) return;
+  var F = G.final;
+  if (OPT.pass > 0 && F.score < OPT.pass) return;
+  post({ event: 'complete', score: F.score, stars: F.stars, flips: F.flips, seconds: F.seconds, round: F.round, repeat: true });   /* same round as the first complete */
+  post({ event: 'enter' });
+  if (document.activeElement === D.again || document.activeElement === D.enter) parkFocus();
+  phase('entered'); D.enter.disabled = true; D.again.disabled = true;
+  popOut(ENDB); popOut(ENDP);
+  archieSay(CONTENT.archie.welcome); tw(DOOR, 'o', 1, .6, E.inOut); sfx('shhk'); at(.2, function () { sfx('tada'); });
+}
+function playAgain() {
+  if (G.phase !== 'end') return;
+  if (document.activeElement === D.again || document.activeElement === D.enter) parkFocus();
+  D.again.disabled = true; D.enter.disabled = true; popOut(ENDB); popOut(ENDP); popOut(AB);
+  at(.25, startRound);
+}
+
+/* =====================================================================
+   THE FIRST-TIME HOW-TO-PLAY DEMO  (a ghost hand flips three times)
+   ===================================================================== */
+var DEMO_DECK = ['anjali', 'sethi', 'point', 'walk', 'help', 'space', 'iris', 'meera'];
+function prepDemo() {
+  resetBoard(); G.mode = 'demo'; phase('demo');
+  setDeck(DEMO_DECK); HAND.o = 0; HAND.x = 260; HAND.y = 430; G.first = -1;
+  tabCards(false);                    /* the demo cards do nothing, so Tab skips them */
+  for (var j = 0; j < 6; j++) if (!G.demoReturn) CAN.dots[j] = 0;
+  setDlab();
+}
+function startDemo(fromHelp) {
+  clearTimers(); G.mode = 'demo'; phase('demo'); cls(D.doorL, 'titled', false); cls(D.doorR, 'titled', false); cls(D.doorL, 'plain', false); cls(D.doorR, 'plain', false);
+  if (fromHelp) doorsCycle(prepDemo, demoScript); else { prepDemo(); demoScript(); }
+}
+function handTo(i, d) { var c = centerOf(CARDS[i]); tw(HAND, 'x', c[0] + 6, d, E.inOut); tw(HAND, 'y', c[1] - (i > 3 ? 22 : 4), d, E.inOut); }
+/* after a tap the hand slides off the card (and fades a little), so the card's label stays readable */
+function handAway(i) {
+  if ((i & 3) < 3) tw(HAND, 'x', HAND.x + 46, .3, E.out); else tw(HAND, 'y', HAND.y + (i < 4 ? 72 : -96), .3, E.out);
+  tw(HAND, 'o', .35, .3, E.out);
+}
+function handTap(i) {
+  HAND.press = 1;
+  at(.08, function () { flipCard(i, true); });
+  at(.16, function () { HAND.press = 0; });
+}
+function demoScript() {
+  phase('demo');
+  dealIn(function () { phase('demo'); });
+  /* 1. Anjali + the hourglass: she checks her watch, both flip back */
+  at(.85, function () { tw(HAND, 'o', 1, .3, E.out); handTo(0, .65); });
+  at(1.2, function () { demoCaption(0); });
+  at(1.6, function () { handTap(0); });
+  at(1.95, function () { handTo(5, .45); });
+  at(2.5, function () { handTap(5); });
+  at(2.8, function () { handAway(5); });
+  /* 2. Anjali + the open palm: a pair, and the deck line */
+  at(4.45, function () { demoCaption(1); tw(HAND, 'o', 1, .25, E.out); handTo(0, .45); });
+  at(5.0, function () { handTap(0); });
+  at(5.3, function () { handTo(3, .5); });
+  at(5.9, function () { handTap(3); });
+  at(6.2, function () { handAway(3); });
+  at(7.25, function () { popOut(DCAP); });     /* the caption stays up through the gold glow, then makes way for the line */
+  /* 3. Iris: a trap. She springs out, the DON'T line, flip back */
+  at(9.95, function () { demoCaption(2); tw(HAND, 'o', 1, .25, E.out); handTo(6, .5); });
+  at(10.55, function () { handTap(6); });
+  at(10.85, function () { handAway(6); });
+  at(12.25, function () { popOut(DCAP); });    /* stays up through Iris springing out, then makes way for the DON'T line */
+  at(14.7, function () { tw(HAND, 'o', 0, .3, E.out); demoEnd(); });
+}
+function demoEnd() {
+  phase('demoEnd'); popOut(DCAP);
+  archieSay(CONTENT.archie.ready);
+  at(.35, function () { popIn(YT, .35); D.yt.disabled = false; });
+  at(.47, function () { if (G.lastInput === 'key') D.yt.focus(); });
+}
+function snapshot() {
+  return { grid: G.grid, deck: CARDS.map(function (c) { return c.def; }), matched: CARDS.map(function (c) { return c.matched; }), seen: CARDS.map(function (c) { return c.seen; }),
+    flips: G.flips, gridFlips: G.gridFlips.slice(), slips: G.slips.slice(), knownTraps: G.knownTraps, misses: JSON.parse(JSON.stringify(G.misses)), pairFlips: JSON.parse(JSON.stringify(G.pairFlips)),
+    matchedN: G.matched, pairsDone: G.pairsDone, returning: G.returning, lineShown: JSON.parse(JSON.stringify(G.lineShown)), playT: G.playT, tray: G.tray.slice(), dots: CAN.dots.slice(), lamp: CAN.lamp.slice(), hint: G.hint };
+}
+function restore(s) {
+  resetBoard(); G.mode = 'round';
+  G.grid = s.grid; G.flips = s.flips; G.gridFlips = s.gridFlips; G.slips = s.slips; G.knownTraps = s.knownTraps; G.misses = s.misses; G.pairFlips = s.pairFlips;
+  G.matched = s.matchedN; G.pairsDone = s.pairsDone; G.returning = s.returning; G.lineShown = s.lineShown || {}; G.playT = s.playT; G.hint = s.hint;
+  s.deck.forEach(function (id, i) {
+    setFace(i, id); var c = CARDS[i]; c.seen = s.seen[i]; c.dx = 0; c.dy = 0; c.dr = 0; c.ds = 1; c.dO = 1;
+    if (s.matched[i]) { c.matched = true; c.up = true; c.gold = true; c.flip = 1; c.el.disabled = true; c.el.classList.add('up'); }
+    ariaCard(c);
+  });
+  s.tray.forEach(function (shop, k) { G.tray.push(shop); D.chips[k].innerHTML = chipHTML(shop); CH.s[k] = 1; });
+  CAN.dots = s.dots; CAN.lamp = s.lamp; txt(D.flipN, String(G.flips)); setDlab(); tabCards(true);
+}
+function yourTurn() {
+  if (G.phase !== 'demoEnd') return;
+  if (document.activeElement === D.yt) parkFocus();
+  D.yt.disabled = true; popOut(YT); popOut(AB); popOut(DCAP);
+  G.demoSeen = true; store.set('demoSeen', '1');
+  var ret = G.demoReturn; G.demoReturn = null;
+  if (ret) {
+    clearTimers(); phase('deal');
+    doorsCycle(function () { restore(ret); }, function () { archieSay(CONTENT.archie.back, 1.4); at(.3, startPlay); });   /* play resumes once the doors are fully open */
+  } else startRound();
+}
+function howToPlay() {
+  if (!G.helpOK) return;
+  G.demoReturn = snapshot(); G.timing = false;
+  startDemo(true);
+}
+
+/* =====================================================================
+   INTRO
+   ===================================================================== */
+function intro(demo) {
+  resetBoard(); DOOR.o = 0; CAN.lid = 1; CAN.lidT = 1; HAND.o = 0;
+  cls(D.doorL, 'titled', true); cls(D.doorR, 'titled', true);
+  if (demo) prepDemo(); else prepRound();
+  G.mode = demo ? 'demo' : 'intro'; phase('intro');
+  at(.35, function () { CAN.lidT = .45; sfx('pop'); });
+  at(1.25, function () { tw(DOOR, 'o', 1, .5, E.inOut); sfx('shhk'); });
+  at(1.8, function () { cls(D.doorL, 'titled', false); cls(D.doorR, 'titled', false); });
+  at(1.4, function () { if (demo) demoScript(); else { G.mode = 'round'; dealIn(startPlay); } });
+}
+
+/* =====================================================================
+   LAYOUT  (scale the 320 x 400 canvas to fit any window, contain)
+   ===================================================================== */
+function layout() {
+  var W = window.innerWidth || document.documentElement.clientWidth || 320, H = window.innerHeight || document.documentElement.clientHeight || 400;
+  var s = Math.min(W / 320, H / 400);
+  var x = (W - 320 * s) / 2, y = (H - 400 * s) / 2;
+  game.style.transform = 'translate(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px) scale(' + s.toFixed(5) + ')';
+  cls(game, 'boxed', x > 6 || y > 6);
+}
+window.addEventListener('resize', layout);
+window.addEventListener('orientationchange', function () { setTimeout(layout, 120); });
+
+/* =====================================================================
+   INPUT  (touch, mouse, keyboard; no scrolling, zoom or menus)
+   ===================================================================== */
+var guardPushed = false;
+var FRAMED = false; try { FRAMED = window.top !== window.self; } catch (e) { FRAMED = true; }
+/* Back must not leave a stand-alone pop-up. Inside the LMS gate (an iframe) the gate already makes Back harmless,
+   so no history entry is added there (it would swallow the first Back press in the LMS). */
+function firstGesture() {
+  if (guardPushed || OPT.close || FRAMED) return; guardPushed = true;
+  try { history.pushState({ sj: 1 }, ''); } catch (e) {}
+}
+window.addEventListener('popstate', function () { if (!OPT.close && guardPushed) { try { history.pushState({ sj: 1 }, ''); } catch (e) {} } });
+var hasPointer = !!window.PointerEvent;
+function cardIndex(el) { for (var i = 0; i < 8; i++) if (CARDS[i].el === el) return i; return -1; }
+function focusable(i) { var c = CARDS[i]; return c && !c.el.disabled && c.dO > .5; }
+/* focus waits on the game itself (never on <body>) while the control that had it is switched off */
+function parkFocus() { try { game.focus({ preventScroll: true }); } catch (e) { try { game.focus(); } catch (e2) {} } }
+function tabbables() {
+  return qa('button, [tabindex]', game).filter(function (el) {
+    if (el.disabled || el.tabIndex < 0) return false;
+    var r = el.getBoundingClientRect(); if (r.width < 1 || r.height < 1) return false;
+    for (var p = el; p && p !== game; p = p.parentElement) { var cs = getComputedStyle(p); if (cs.display === 'none' || cs.visibility === 'hidden') return false; }
+    return true;
+  });
+}
+function focusNearest(i) {
+  var best = -1, bd = 1e9;
+  for (var k = 0; k < 8; k++) if (focusable(k)) { var d = Math.abs((k >> 2) - (i >> 2)) * 2 + Math.abs((k & 3) - (i & 3)); if (d < bd) { bd = d; best = k; } }
+  if (best >= 0) try { CARDS[best].el.focus(); } catch (e) {}
+}
+function moveFocus(i, dx, dy) {
+  var r = i >> 2, c = i & 3;
+  for (var step = 1; step < 4; step++) {
+    var nr = r + dy * step, nc = c + dx * step;
+    if (nr < 0 || nr > 1 || nc < 0 || nc > 3) break;
+    var k = nr * 4 + nc; if (focusable(k)) { CARDS[k].el.focus(); return; }
+  }
+  if (dy) { var k2 = (1 - r) * 4 + c; for (var s2 = 0; s2 < 4; s2++) { var a1 = (1 - r) * 4 + clamp(c + s2, 0, 3), a2 = (1 - r) * 4 + clamp(c - s2, 0, 3); if (focusable(a1)) { CARDS[a1].el.focus(); return; } if (focusable(a2)) { CARDS[a2].el.focus(); return; } } }
+}
+/* a press on a card. While a deck line shows (and has been up TO_GUARD), the press closes the line and,
+   if that card is face down, flips it too, so play never feels blocked */
+function cardPress(i) {
+  if (TO.on) {
+    var c = CARDS[i], wasUp = c.up || c.matched;
+    if (dismissToast()) { if (!wasUp) flipCard(i); }
+    else if (!wasUp) c.wigT = clock;        /* too early to close the line: the tapped card still answers with a wiggle */
+    return;
+  }
+  flipCard(i);
+}
+CARDS.forEach(function (c, i) {
+  function down(e) {
+    if (e.cancelable) e.preventDefault(); G.lastInput = 'pointer'; firstGesture();
+    cardPress(i);
+  }
+  if (hasPointer) c.el.addEventListener('pointerdown', function (e) { if (e.button && e.button !== 0) return; down(e); });
+  else { c.el.addEventListener('touchstart', down, { passive: false }); c.el.addEventListener('mousedown', down); }
+  c.el.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (e.detail !== 0) return;                       /* mouse and touch already flipped on press */
+    G.lastInput = 'key'; G.lastFocus = i;
+    if (TO.on) skipToast(); else flipCard(i);   /* the keyboard moves the line on part by part, like the arrow button */
+  });
+  c.el.addEventListener('focus', function () { G.lastFocus = i; });
+});
+/* buttons only act on a press that started on them (or on the keyboard), while they are switched on.
+   The end-card buttons also ignore a press that is part of a quick run of taps (under .6 s after the previous press),
+   so a player still tapping through the last line can never end the round or start a new one by accident */
+var tapT = -9, prevTapT = -9;
+document.addEventListener('pointerdown', function () { prevTapT = tapT; tapT = clock; }, true);
+function armed(btn, fn, streak) {
+  btn.addEventListener('pointerdown', function () { btn.__armed = btn.disabled || (streak && clock - prevTapT < .6) ? null : clock; G.lastInput = 'pointer'; firstGesture(); });
+  btn.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (btn.disabled) return;
+    var kb = e.detail === 0;
+    if (!kb && !hasPointer) { btn.blur(); fn(); return; }
+    if (!kb && (btn.__armed == null || clock - btn.__armed > 30)) return;
+    btn.__armed = null; if (!kb) btn.blur(); fn();
+  });
+}
+armed(D.yt, yourTurn); armed(D.enter, enterLMS, true); armed(D.again, playAgain, true); armed(D.hlp, howToPlay); armed(D.tgo, skipToast);
+armed(D.snd, function () {
+  soundOn = !soundOn;
+  D.snd.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  D.snd.querySelector('.chip').innerHTML = soundOn ? IC_SND_ON : IC_SND_OFF;
+  if (soundOn) { audio(); sfx('pop'); }
+});
+if (D.cls) armed(D.cls, function () { post({ event: 'close' }); });
+/* a tap anywhere on the panel (not just on its words) moves the line on; the arrow button has its own handler */
+function toastDown(e) { if (D.tgo.contains(e.target)) return; if (e.cancelable) e.preventDefault(); G.lastInput = 'pointer'; firstGesture(); skipToast(); }
+if (hasPointer) D.toast.addEventListener('pointerdown', toastDown); else { D.toast.addEventListener('touchstart', toastDown, { passive: false }); D.toast.addEventListener('mousedown', toastDown); }
+
+document.addEventListener('keydown', function (e) {
+  var k = e.key;
+  if (k === 'Escape' || k === 'Esc') { e.preventDefault(); return; }                 /* mandatory: Esc never exits */
+  if (k === 'Backspace' && e.target === document.body) { e.preventDefault(); return; }
+  if (k === 'Tab') { G.lastInput = 'key'; return; }
+  var ci2 = cardIndex(document.activeElement);
+  if (k === 'ArrowLeft' || k === 'ArrowRight' || k === 'ArrowUp' || k === 'ArrowDown') {
+    G.lastInput = 'key'; e.preventDefault();
+    if (ci2 < 0) { if (G.mode === 'round') focusNearest(G.lastFocus != null ? G.lastFocus : 0); return; }
+    moveFocus(ci2, k === 'ArrowLeft' ? -1 : (k === 'ArrowRight' ? 1 : 0), k === 'ArrowUp' ? -1 : (k === 'ArrowDown' ? 1 : 0));
+    return;
+  }
+  if (k === ' ' || k === 'Spacebar' || k === 'Enter') {
+    G.lastInput = 'key'; firstGesture();                                                 /* keyboard players get the Back guard too */
+    if (TO.on && G.mode === 'round') { e.preventDefault(); if (!e.repeat) skipToast(); return; }   /* Enter or Space moves the deck line on */
+    if (e.repeat) { e.preventDefault(); return; }
+    var tg = document.activeElement;
+    if (tg && tg.tagName === 'BUTTON' && !tg.disabled) return;                           /* let the focused button click */
+    if (G.phase === 'demoEnd' && !D.yt.disabled) { e.preventDefault(); yourTurn(); return; }   /* Enter starts the round even if focus is elsewhere */
+    e.preventDefault(); firstGesture();
+    if (G.mode === 'round' && (G.phase === 'idle' || G.phase === 'one')) focusNearest(G.lastFocus != null ? G.lastFocus : 0);
+  }
+});
+document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+document.addEventListener('selectstart', function (e) { e.preventDefault(); });
+document.addEventListener('dragstart', function (e) { e.preventDefault(); });
+document.addEventListener('dblclick', function (e) { e.preventDefault(); });
+document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+document.addEventListener('visibilitychange', function () { hiddenPause = !!document.hidden; if (!hiddenPause) lastTs = 0; });
+
+/* =====================================================================
+   TEST HOOKS
+   ===================================================================== */
+function rectOf(el) { if (!el) return null; var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height }; }
+function wordsOnScreen() {
+  var n = 0, list = [];
+  function add(s, on) { if (on && s) { var w = words(s); n += w; if (w) list.push(s); } }
+  add(D.dlab.textContent, D.dlab.style.visibility !== 'hidden'); add(D.toastTx.textContent, TO.s > .3); add(D.abTx.textContent, AB.s > .3); add(D.dcapTx.textContent, DCAP.s > .3);
+  CARDS.forEach(function (c) { if (c.flip > .5 && c.dO > .5 && c.kind !== 'shop') add(CONTENT.cards[c.def].label, true); });
+  add(D.yt.textContent, YT.s > .3); add(CONTENT.title.join(' '), DOOR.o < .5 && D.doorL.classList.contains('titled'));
+  if (ENDP.s > .3) { add(D.eBest.textContent, true); add(D.eStats.textContent, true); add(D.eRemTx.textContent, true); }
+  if (ENDB.s > .3) { add(D.again.textContent, true); add(D.enter.textContent, true); }
+  return { count: n, items: list };
+}
+window.SJ_DEBUG = {
+  state: function () {
+    return { mode: G.mode, phase: G.phase, grid: G.grid, flips: G.flips, gridFlips: G.gridFlips.slice(), slips: G.slips.slice(), knownTraps: G.knownTraps, matched: G.matched, pairsDone: G.pairsDone,
+      deck: CARDS.map(function (c) { return c.def; }), up: CARDS.filter(function (c) { return c.up; }).map(function (c) { return c.i; }), done: CARDS.filter(function (c) { return c.matched; }).map(function (c) { return c.i; }),
+      seen: CARDS.map(function (c) { return c.seen; }), first: G.first, toast: TO.on ? D.toastTx.textContent : null, lamps: CAN.lamp.slice(), score: liveScore(), returning: G.returning,
+      misses: G.misses, pairFlips: G.pairFlips, lineShown: G.lineShown, final: G.final, demoSeen: G.demoSeen, helpOK: G.helpOK, round: G.roundN, clock: clock, playT: G.playT, timeScale: tScale, opts: OPT, sound: soundOn,
+      ready: G.mode === 'round' && G.phase === 'idle' && !TO.on, words: wordsOnScreen() };
+  },
+  speed: function (n) { if (n != null) tScale = Math.max(0, isNaN(+n) ? 1 : +n); return tScale; },
+  flip: function (i) { return flipCard(+i); },
+  tap: function (i) { G.lastInput = 'pointer'; cardPress(+i); return true; },     /* same path as a finger on card i */
+  tapToast: function () { G.lastInput = 'pointer'; skipToast(); },               /* same path as a finger on the panel */
+  pos: function (id) { for (var i = 0; i < 8; i++) if (CARDS[i].def === id && !CARDS[i].matched) return i; return -1; },
+  pairs: function () { var out = []; CARDS.forEach(function (c) { if (c.kind === 'shop') out.push({ shop: c.def, move: CONTENT.cards[c.def].pair, a: c.i, b: window.SJ_DEBUG.pos(CONTENT.cards[c.def].pair), done: c.matched }); }); return out; },
+  skip: function () { if (TO.on) { TO.t0 = -99; skipToast(); } },
+  rect: function (name) {
+    if (typeof name === 'number' || /^\d$/.test(name)) return rectOf(CARDS[+name].el);
+    var map = { toast: D.toast, next: D.tgo, yt: D.yt, enter: D.enter, again: D.again, snd: D.snd, hlp: D.hlp, cls: D.cls, game: game };
+    return rectOf(map[name]);
+  },
+  force: function (what, arg) {
+    if (what === 'demo') { G.demoReturn = null; startDemo(false); }
+    else if (what === 'round') startRound();
+    else if (what === 'end') {
+      clearTimers(); G.mode = 'round';
+      if (arg) { G.gridFlips = arg.gridFlips || [12, 12]; G.flips = G.gridFlips[0] + G.gridFlips[1]; G.slips = arg.slips || [0, 0]; G.knownTraps = arg.knownTraps || 0; G.misses = arg.misses || {}; G.playT = arg.seconds || 60; }
+      G.pairsDone = 6; endRound();
+    }
+    return this.state();
+  },
+  messages: G.sent,
+  resetStorage: function () { try { localStorage.removeItem('sahiJodi.demoSeen'); localStorage.removeItem('sahiJodi.best'); } catch (e) {} },
+  words: wordsOnScreen,
+  peek: function (ids) { if (ids) setDeck(ids); CARDS.forEach(function (c) { c.flip = 1; c.dO = 1; c.dx = 0; c.dy = 0; c.dr = 0; c.ds = 1; }); return this.state().deck; }
+};
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+game.tabIndex = -1;
+/* demo.html's focus loop: Tab past the last control (edge 'end') lands on the first one, Shift+Tab past the first (edge 'start') on the last */
+window.addEventListener('message', function (e) {
+  if (window.parent === window || e.source !== window.parent) return;
+  var d = e.data; if (!d || typeof d !== 'object' || d.type !== 'sahi-jodi-focus') return;
+  G.lastInput = 'key';
+  var list = tabbables();
+  if (!list.length) { parkFocus(); return; }
+  try { (d.edge === 'start' ? list[list.length - 1] : list[0]).focus(); } catch (err) {}
+});
+layout();
+setInterval(countUp, 50);
+requestAnimationFrame(frame);
+var showDemo = OPT.demo === 'always' || (OPT.demo !== 'never' && !G.demoSeen);
+intro(showDemo);
+})();
+</script>
+</body>
+</html>
